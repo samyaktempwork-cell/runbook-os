@@ -1,7 +1,7 @@
 fastapi
 uvicorn[standard]>=0.34.0
 websockets>=15.0.1
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pydantic>=2.10.5
 
 # Cognee — graph memory layer
