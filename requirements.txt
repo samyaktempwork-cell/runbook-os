@@ -1,0 +1,21 @@
+fastapi
+uvicorn[standard]>=0.34.0
+websockets>=15.0.1
+python-dotenv==1.0.1
+pydantic>=2.10.5
+
+# Cognee — graph memory layer
+cognee==1.2.0
+fastembed==0.8.0
+
+# OpenAI SDK — used as Groq client (Groq is OpenAI-compatible)
+openai>=1.80.1
+
+# Local RAG — comparison pipeline (no external API, runs fully local)
+sentence-transformers==3.1.1
+chromadb==0.5.11
+rank_bm25==0.2.2
+
+# Utilities
+httpx
+aiofiles==24.1.0

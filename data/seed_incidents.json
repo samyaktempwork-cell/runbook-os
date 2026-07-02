@@ -1,0 +1,1073 @@
+[
+  {
+    "id": "oss-redis-redis-14218",
+    "category": "Redis / Replication",
+    "source_url": "https://github.com/redis/redis/issues/14218",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #14218] [BUG] HINCRBYFLOAT on HFE field removes field expiration on replica\n\nWhen executing HINCRBYFLOAT on a field of HFE, the expiration time of that field is removed on the replica, even though the master retains it. This leads to an inconsistency between master and replica.\n\n**To reproduce**\n\n- master\n[snippet]\n127.0.0.1:6379> hset hash f1 1\n(integer) 1\n127.0.0.1:6379> hexpire hash 200 fields 1 f1\n1) (integer) 1\n127.0.0.1:6379> hincrbyfloat hash f1 1\n\"2\"\n127.0.0.1:6379> HTTL hash fields 1 f1\n1) (integer) 187\n[snippet]\n127.0.0.1:6380> httl hash fields 1 f1  <== afte\n\nSource: https://github.com/redis/redis/issues/14218"
+  },
+  {
+    "id": "oss-redis-redis-13628",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/13628",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #13628] [BUG] Unexpected behavior of XREAD STREAMS stream +\n\nAfter last element of stream was removed, XREAD STREAMS stream + returns nil, but stream is not empty.\r\n\r\n**To reproduce**\r\n\r\n[snippet]\r\n127.0.0.1:6379> XADD stream * f 1\r\n\"1730271076300-0\"\r\n127.0.0.1:6379> XADD stream * f 2\r\n\"1730271126476-0\"\r\n127.0.0.1:6379> XREAD STREAMS stream +\r\n1) 1) \"stream\"\r\n   2) 1) 1) \"1730271126476-0\"\r\n         2) 1) \"f\"\r\n            2) \"2\"\r\n127.0.0.1:6379> XREVRANGE stream + - COU\n\nSource: https://github.com/redis/redis/issues/13628"
+  },
+  {
+    "id": "oss-redis-redis-13401",
+    "category": "Redis / Clustering",
+    "source_url": "https://github.com/redis/redis/issues/13401",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #13401] [BUG] Can't add a v7.2 node into v6.2 cluster\n\nHello all,\r\n\r\nWe have a Redis v6 cluster with 27 nodes.\r\nWe wanted to gradually upgrade the cluster to Redis v7.\r\n\r\nAfter creating Redis v7 instances, we were unable to join new Redises to our v6 cluster.\r\n\r\nAfter running command redis-cli —cluster add-node command the execution of commands gets stucked at Waiting for cluster to join and multiple dots start getting printed.\r\n\r\nAll ports and firewalls are ok and cluster bus port is open.\r\nWe could join Redis7s together but we can’t join them to the v6 cluster.\n\nSource: https://github.com/redis/redis/issues/13401"
+  },
+  {
+    "id": "oss-redis-redis-13414",
+    "category": "Redis / Clustering",
+    "source_url": "https://github.com/redis/redis/issues/13414",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #13414] [BUG] CLUSTER SHARDS command returns \"empty array\" in slots section\n\n- start cluster using attached docker-compose.yml.txt\r\n- create a cluster using below command\r\n `docker exec -it redis-node-0 redis-cli --cluster create redis-node-0:6379 redis-node-1:6379 redis-node-2:6\n\nSource: https://github.com/redis/redis/issues/13414"
+  },
+  {
+    "id": "oss-redis-redis-13337",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/13337",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #13337] [BUG] Redis Streams XINFO Lag field\n\nXINFO Lag field is reported wrong in some cases. \r\n\r\n**To reproduce and expected behavior**\r\n\r\nTested against Redis 7.2.4 (d2c8a4b9/0) 64 bit with redis-cli 7.2.4 (git:d2c8a4b9)\r\n\r\nI will report two different cases \r\n\r\n1) CASE 1 \r\n\r\n[snippet]\r\n127.0.0.1:6379> XGROUP CREATE planets processing $ MKSTREAM\r\nOK\r\n127.0.0.1:6379> XADD planets 0-1 name Mercury\r\n\"0-1\"\r\n127.0.0.1:6379> XA\n\nSource: https://github.com/redis/redis/issues/13337"
+  },
+  {
+    "id": "oss-redis-redis-3978",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/3978",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #3978] rename-command in redis.conf seems to break redis-cli if command starts with a number\n\nVersion: Redis 4.0-rc3 / Platform: Linux Ubuntu\r\n\r\nIn redis.conf you add in the line:\r\n\r\nrename-command KEYS 21591e49a59cfd7c\r\n\r\nThen in redis-cli issue the command 21591e49a59cfd7c * the result is\r\n[snippet]\r\n\r\nHowever, if, in redis.conf you put in the line:\r\n\r\nrename-command KEYS r21591e49a59cfd7c \r\n(note the 'r' at the start of the second argument, the only difference)\r\n\r\nRestart redis and issue the command r21591e49a59cfd7c * in redis-cli it works as expected:\r\n\r\n[snippet]\n\nSource: https://github.com/redis/redis/issues/3978"
+  },
+  {
+    "id": "oss-redis-redis-8935",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/8935",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #8935] Expiration based invalidation PUSH messages sometimes embedded within other replies.\n\nCompile and run this code locally.  The problem doesn't occur every run but it does more often than not so it shouldn't take any time to reproduce.\r\n\r\nThe heart of the logic that triggers the problem is a\n\nSource: https://github.com/redis/redis/issues/8935"
+  },
+  {
+    "id": "oss-redis-redis-8993",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/8993",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #8993] [QUESTION] using iterators when insert to a list\n\nHi guys,\r\n\r\nI got a question about linsertCommand. This inserting process starts with initializing an iterator but only uses entry as the pivot to insert a new value. And after listTypeInsert successfully, either entry or iter loses the information about the current entry.\r\n\r\n[snippet]\r\n\r\n\r\nFor now this works well as we only insert one entry and no need to worry about the position of the new entry.\n\nSource: https://github.com/redis/redis/issues/8993"
+  },
+  {
+    "id": "oss-redis-redis-8032",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/8032",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #8032] [BUG] expireGenericCommand overflow time and The key is deleted by mistake\n\nIn expireGenericCommand, if input time for expire  causes to overflow on \"when\" variable , so we have a undefined behavior.\r\n \r\n**To reproduce**\r\n\r\nThis is a long time but it may be requested\r\n\r\nwhen = LLONG_MAX - 1000;\r\n\r\n**Expected behavior**\r\n\r\nexpected ttl set to  LLONG_MAX -\nThis is a long time but it may be requested\r\n\r\nwhen = LLONG_MAX - 1000;\r\n\r\n**Expected behavior**\r\n\r\nexpected ttl set to  LLONG_MAX - 1000;\r\nbut an overflow occurs.\r\n\r\n**Additional information**\r\n\r\n my solution is \r\n\r\n\r\n```\r\n\r\nif (unit == UNIT_SECONDS)\r\n{\r\nif (when >= (LLONG_MAX /\n\nSource: https://github.com/redis/redis/issues/8032"
+  },
+  {
+    "id": "oss-redis-redis-8824",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/8824",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #8824] confused return value type(ZPOPMAX/ZPOPMIN--ZRANGE)\n\nWhy are two types of return values used here?\r\nThe meaning of the data they output seems to be the same(array member+score).\r\n\r\n[snippet]\n\nSource: https://github.com/redis/redis/issues/8824"
+  },
+  {
+    "id": "oss-redis-redis-3334",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/3334",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #3334] redis-benchmark.c lrange with possibly wrong range parameter\n\nredis-benchmark.c\n\n[snippet]\n\nHere LRANGE_500 takes LRANGE mylist 0 449 as raw cmd string, which supposed to take LRANGE mylist 0 499.  Isn't it so?\n\nSource: https://github.com/redis/redis/issues/3334"
+  },
+  {
+    "id": "oss-redis-redis-2337",
+    "category": "Redis / Auth",
+    "source_url": "https://github.com/redis/redis/issues/2337",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #2337] redis-benchmark does not report error when no auth is provided\n\nRunning redis-benchmark does not report error when test is running without the -a flag for a server which requires authentication. \n\nThe results reported are effectively for time to get a (error) NOAUTH Authentication required. response rather than actually run the command. So, the benchmark reports incorrect results.\n\nThe fix could be to run a test ping to test whether authentication is required or not.\n\nSource: https://github.com/redis/redis/issues/2337"
+  },
+  {
+    "id": "oss-redis-redis-8236",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/8236",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #8236] Should the SWAPDB command set CLIENT_DIRTY_CAS?\n\nI think step3 should fail, because k=1 in db1, not the original set k 2.\r\n\r\nThe current code handles db->blocking_keys, but does not handle db->watched_keys. I think the CLIENT_DIRTY_CAS flag should be set so that exec returns nil, the example code is as follows:\r\n[snippet]\r\n\r\nTracking does not need to be processed, because tracking does not distinguish db, and the value of key has not changed.\n\nSource: https://github.com/redis/redis/issues/8236"
+  },
+  {
+    "id": "oss-redis-redis-7808",
+    "category": "Redis",
+    "source_url": "https://github.com/redis/redis/issues/7808",
+    "source_repo": "redis/redis",
+    "text": "[redis/redis #7808] [BUG] redis-check-rdb is broken for module .rdb files with auxiliary\n\nRunning redis-check-rdb on an rdb from a module that includes an auxiliary, returns an error Invalid object type: 247 where 247 is a flag for RDB_OPCODE_MODULE_AUX. \r\n\r\n**Additional information**\r\n\r\nRelevant to RediSearch/RediSearch#1549\n\nSource: https://github.com/redis/redis/issues/7808"
+  },
+  {
+    "id": "oss-prometheus-prometheus-18379",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/18379",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #18379] `stale_series_compaction_threshold` experimental feature breaks Prometheus\n\nEnabled stale series compaction on Prometheus.\n\nSource: https://github.com/prometheus/prometheus/issues/18379"
+  },
+  {
+    "id": "oss-prometheus-prometheus-7812",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/7812",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #7812] npm_licenses.tar.bz2 is not shipped with the release tarballs\n\nWe ship the NPM licenses with the docker image, but not in the tarball built by promu, even if the file is in the .promu.yml.\r\n\r\nI think maybe we have a target missing the makefile.\n\nSource: https://github.com/prometheus/prometheus/issues/7812"
+  },
+  {
+    "id": "oss-prometheus-prometheus-17693",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/17693",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #17693] CI: fuzzing is failing (/libc.so.6: version GLIBC_2.XX not found )\n\nCI/fuzzing is failing on main impacting all PRs (not required check though).\n\nExamples:\n* https://github.com/prometheus/prometheus/actions/runs/20230955162/job/58073513307?pr=17631\n* https://github.com/prometheus/prometheus/actions/runs/20232164763/job/58091053007?pr=17683\n\nSomething changed in the environment:\n\n[snippet]\n\nSource: https://github.com/prometheus/prometheus/issues/17693"
+  },
+  {
+    "id": "oss-prometheus-prometheus-17659",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/17659",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #17659] v3.8.0: \"we got 2xx status code from the Receiver yet statistics indicate some data was not written; investigation needed\"\n\nUpgraded the Prometheus Helm chart from 27.42.0 -> 27.50.0 (which includes v3.8.0)\n\nNOTE: issue seems to resolve itself after downgrading to chart version 27.48 (just before v3.8.0)\n\nSource: https://github.com/prometheus/prometheus/issues/17659"
+  },
+  {
+    "id": "oss-prometheus-prometheus-13944",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/13944",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #13944] Prometheus does not recognize `HELP` and `TYPE` for OpenMetrics counters\n\nI pointed Prometheus to OpenMetrics endpoint which outputs data that looks like this:\r\n```\r\n$ curl http://192.168.10.2:9001/metrics -v\r\n*   Trying 192.168.10.2:9001...\r\n* Connected to 192.168.10.2 (192.168.10.2) port 9001 (#0)\r\n> GET /metrics HTTP/1.1\r\n> Host: 192.168.10.2:9001\n\nSource: https://github.com/prometheus/prometheus/issues/13944"
+  },
+  {
+    "id": "oss-prometheus-prometheus-18078",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/18078",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #18078] [flaky tests] TestReshardPartialBatch\n\nSee https://github.com/prometheus/prometheus/actions/runs/21958882084/job/63430579331?pr=18071\n\n[snippet]\n\nSource: https://github.com/prometheus/prometheus/issues/18078"
+  },
+  {
+    "id": "oss-prometheus-prometheus-18789",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/18789",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #18789] prometheus alerts UI show diffrent value for keep_firing_for then is in loaded config\n\nTo one of my rules, I wanted to add a keep_firing_for value. In UI I can see the value of \"keep_firing_for\" is set to the value from \"for\".\n\nWhen I\n\nSource: https://github.com/prometheus/prometheus/issues/18789"
+  },
+  {
+    "id": "oss-prometheus-prometheus-17489",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/17489",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #17489] Flaky test `TestRemoteWrite_ReshardingWithoutDeadlock`\n\nJust had my Go CI tests for an unrelated UI PR fail multiple times, saw this Condition never satisfied error for the TestRemoteWrite_ReshardingWithoutDeadlock test:\n\n[snippet]\n\n@machine424 Seems like this is a new test added in https://github.com/prometheus/prometheus/pull/17412?\n\nSource: https://github.com/prometheus/prometheus/issues/17489"
+  },
+  {
+    "id": "oss-prometheus-prometheus-14942",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/14942",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #14942] UI: codemirror-promql shows label completion suggestions after closing curly of a vector selector\n\nStart typing up{job=\"prometheus\"} (either type over the closing curly brace or remove + add it again, don't just rely on the auto-added closing paren and jump to the end).\n\nSource: https://github.com/prometheus/prometheus/issues/14942"
+  },
+  {
+    "id": "oss-prometheus-prometheus-16622",
+    "category": "Prometheus / Networking",
+    "source_url": "https://github.com/prometheus/prometheus/issues/16622",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #16622] SIGSEGV in `tlsRoundTripper.RoundTrip()` during scrape\n\nNothing. Prometheus has crashed twice in <24h with this same crash.\n\nPrior to this release, I was running 3.2.1: `prometheus_build_info{branch=\"HEAD\", goarch=\"amd64\", goos=\"linux\", goversion=\"go1.23.6\", instance=\"poseidon\", job=\"prometheus\", revision=\"804c49d58f3f3784c77c9c8ec17c\n\nSource: https://github.com/prometheus/prometheus/issues/16622"
+  },
+  {
+    "id": "oss-prometheus-prometheus-11629",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/11629",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #11629] UI: auto-complete handles escape character incorrectly\n\nWe use the PromQL parser in the Parca project. We noticed something interesting when label values contained the \\x2d value. Ultimately we noticed that the PromQL parser interprets this, not as the string value, but rather interprets the UTF-8 escape charac\n\nSource: https://github.com/prometheus/prometheus/issues/11629"
+  },
+  {
+    "id": "oss-prometheus-prometheus-17367",
+    "category": "Prometheus",
+    "source_url": "https://github.com/prometheus/prometheus/issues/17367",
+    "source_repo": "prometheus/prometheus",
+    "text": "[prometheus/prometheus #17367] `histogram_fraction` returns NaN for classic histograms when `lower` falls within the first bucket\n\nhistogram_fraction returns NaN when the lower argument falls within the first bucket of a classic histogram. For example, for a classic histogram with the following buckets, histogram_fraction(0.0, 1.5, metric_name) returns NaN, instead of the expected 0.02. The same\n\nSource: https://github.com/prometheus/prometheus/issues/17367"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21355",
+    "category": "Etcd / Memory",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21355",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21355] Increased memory usage with 3.6 event reuse\n\n@mcornea has been load testing 3.6.5 with OpenShift 4.21 on AWS lately and found we have a memory regression with large clusters and kube density tests.\n\nCluster Size | etcd 3.5 Avg RSS | etcd 3.6 Avg RSS | Avg Change | etcd 3.5 Max RSS | etcd 3.6 Max RSS | Max Change\n-- | -- | -\n\nSource: https://github.com/etcd-io/etcd/issues/21355"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21418",
+    "category": "Etcd / Storage",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21418",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21418] etcd failed to send a snapshot.\n\nWe have a three-node etcd cluster. The master node fails to send snapshots. The log is as follows:\n```\n{\"level\":\"warn\",\"ts\":\"2026-03-03T12:31:17.794522Z\",\"caller\":\"etcdserver/snapshot_merge.go:72\",\"msg\":\"failed to send database snapshot to writer\",\"size\":\"274 MB\",\"error\":\"EOF\"}\n{\n\nSource: https://github.com/etcd-io/etcd/issues/21418"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21939",
+    "category": "Etcd / Crash",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21939",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21939] Potential deadlock in TestWriteTxnPanicWithoutApply because batchTx lock is not released after panic\n\n**Bug Description**\nWhen running the unit test TestWriteTxnPanicWithoutApply in server/etcdserver/txn/txn_test.go, the test appears to have a deadlock in the background goroutine, due to a lock that is never released after a panic.\n\n**Execution Flow**\n1. `betesting.NewDefault\n\nSource: https://github.com/etcd-io/etcd/issues/21939"
+  },
+  {
+    "id": "oss-etcd-io-etcd-20426",
+    "category": "Etcd / Storage",
+    "source_url": "https://github.com/etcd-io/etcd/issues/20426",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #20426] Antitheiss found \"consistent_index isn't equal to snapshot index\"\n\nVerify from https://github.com/etcd-io/etcd/blob/58cc32be995deba7d1c1164c1da419889d17f8f6/server/etcdserver/server.go#L1166 failed\n\n```\nmessage: \"consistent_index isn't equal to snapshot index\", \nfile: client/pkg/verify/verify.go, \nline: 74, \nclass: go.etcd.io/etcd/client/pkg/v3/\n\nSource: https://github.com/etcd-io/etcd/issues/20426"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21694",
+    "category": "Etcd",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21694",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21694] MemberUpdate forgets that the member is a learner\n\nAfter a MemberUpdate of a member, MemberList stopped reporting the member as a learner.\n\nAs a result, it became impossible to promote the member due to the IsLearner check in ValidateConfigurationChange.\nIn this state, it also becomes possible to add another learner, beca\n\nSource: https://github.com/etcd-io/etcd/issues/21694"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21830",
+    "category": "Etcd / Performance",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21830",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21830] `clientv3.dial` blocks when a non-zero DialTimeout is set\n\nPreviously in etcd 3.6 and 3.5, the clientv3.dial only blocks when grpc.WithBlock option is set. Now in 3.7, as long as a non-zero DialTimeout is set, then it's blocked. It changes the behaviour. \n\nWhen one of the three member is down, etcd v3.7 has different behaviour with v\n\nSource: https://github.com/etcd-io/etcd/issues/21830"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21663",
+    "category": "Etcd / Auth",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21663",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21663] Allow Maintenance.Status for authenticated non-admin users (parity with MemberList / AlarmList)\n\nStarting with etcd 3.5.28 (the fix for CVE-2026-33413), all RPCs on the Maintenance service require the caller to have the root role. Before 3.5.28, several of these RPCs — including Status, MemberList, and AlarmList — skipped the authorization check entirely, which was the secur\n\nSource: https://github.com/etcd-io/etcd/issues/21663"
+  },
+  {
+    "id": "oss-etcd-io-etcd-17084",
+    "category": "Etcd / Crash",
+    "source_url": "https://github.com/etcd-io/etcd/issues/17084",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #17084] [3.4.18] panic: page xxx already freed\n\nREF: https://github.com/etcd-io/etcd/issues/14211#issuecomment-1798049610\r\n\r\nProvide a case we observed on Nov 1, 2023.\n\nSource: https://github.com/etcd-io/etcd/issues/17084"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21733",
+    "category": "Etcd",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21733",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21733] traceutil:  Trace log event names include a random runtime trace ID\n\n## Anti-pattern\n\nThis issue is limited to one logging entrypoint in pkg/traceutil/trace.go. The trace logger builds the zap message from fmt.Sprintf(\"trace[%d] %s\", traceNum, t.operation), where traceNum comes from rand.Int31(). In structured logging, the event name shoul\nTrigger a slow etcd request path that emits a trace log, then inspect the log message.\n\nSource: https://github.com/etcd-io/etcd/issues/21733"
+  },
+  {
+    "id": "oss-etcd-io-etcd-18667",
+    "category": "Etcd",
+    "source_url": "https://github.com/etcd-io/etcd/issues/18667",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #18667] Specifying a revision for a range request in a transaction may cause data inconsistency\n\nSpecifying a revision for a range request in a transaction may cause data inconsistency.  The client may get different values against the same key from different endpoints.\n\nSource: https://github.com/etcd-io/etcd/issues/18667"
+  },
+  {
+    "id": "oss-etcd-io-etcd-21710",
+    "category": "Etcd",
+    "source_url": "https://github.com/etcd-io/etcd/issues/21710",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #21710] scripts: fix SC2268 shellcheck warning in test_lib.sh\n\nRunning make verify fails on shellcheck with SC2268:\n\nscripts/test_lib.sh:500:10: note: Avoid x-prefix in comparisons as it no longer serves a purpose. [SC2268]\n\nSource: https://github.com/etcd-io/etcd/issues/21710"
+  },
+  {
+    "id": "oss-etcd-io-etcd-18805",
+    "category": "Etcd / Clustering",
+    "source_url": "https://github.com/etcd-io/etcd/issues/18805",
+    "source_repo": "etcd-io/etcd",
+    "text": "[etcd-io/etcd #18805] `etcd_cluster_version` metric is missing\n\nnew etcd members do not generate etcd_cluster_version metrics; this is the only metrics being missing as of we've noticed. According to the etcd logs instance knows the cluster version; but this metrics is still missing.\n\nSource: https://github.com/etcd-io/etcd/issues/18805"
+  },
+  {
+    "id": "oss-hashicorp-vault-31614",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31614",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31614] KVv2 secrets disappeared after updating from 1.20.2 to 1.21.0\n\nSome employees created secret KVv2 engines through UI with names like:\n\nPayments:Data\nPayments:Configs\n\nas well as with \"@\" or \"&\" in names (e.g. bonus&grouth)\n\nAfter updating from 1.20.2 to 1.21.0, they all disappeared:\n\n<img width=\"2137\" height=\"638\" alt=\"Image\" src=\"http\nSteps to reproduce the behavior:\n1. Deploy Vault cluster version 1.20.2\n2. Create a secret KVv2 engine named Payments:Data and add some secrets to it\n3. Upgrade all Vault cluster nodes sequentially to version 1.21.0 according to the instructions in the official documentation\n4. C\n\nSource: https://github.com/hashicorp/vault/issues/31614"
+  },
+  {
+    "id": "oss-hashicorp-vault-13843",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/13843",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #13843] after calling logical.Unwrap(), all further operation on logical return 403 error.\n\nusing vault agent with use_auto_auth_token =true, once vault client calls logical.Unwrap(wrapToken), all further operations on client.logical return 403 error.\r\nin the client.logical.Unwrap() the origToken is not reset correctly.\r\nhttps://github.com/hashicorp/vault/blob/e97409c6e48f1d79dbae07f3d0becadbde0a93b0/api/logical.go#L287\r\n\r\nat the beginning of client.logical.Unwrap()  this logic should be called:\r\norigToken := c.c.Token()\r\ndefer c.c.SetToken(origToken)\n\nSource: https://github.com/hashicorp/vault/issues/13843"
+  },
+  {
+    "id": "oss-hashicorp-vault-31923",
+    "category": "Vault / Clustering",
+    "source_url": "https://github.com/hashicorp/vault/issues/31923",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31923] The page selection for leases is still missing in v2.0.0\n\nNo page selection in leases page when there are many leases more than one page\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Login approle to produce many leases for approle tokens\n2. Go to vault lease page\n3. Only show first 100 leases, no page selection underneath\n\n**Ex\nSteps to reproduce the behavior:\n1. Login approle to produce many leases for approle tokens\n2. Go to vault lease page\n3. Only show first 100 leases, no page selection underneath\n\n**Expected behavior**\nHave page selection to see all leases\n\n**Environment:**\n* Vault Server Version\n\nSource: https://github.com/hashicorp/vault/issues/31923"
+  },
+  {
+    "id": "oss-hashicorp-vault-31960",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31960",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31960] EncodeJSON bug in login_mfa.go\n\nI found two 'if' statements have identical conditions. The first 'if' statement contains function return, making the second 'if' redundant, or the code contains a logical error.\n\nfunc (c *Core) PersistTOTPKey(ctx context.Context, methodID, entityID, key string) error {\n\tks := &totpKey{\n\t\tKey: key,\n\t}\n\tval, err := jsonutil.EncodeJSON(ks)\n\tif err != nil {\n\t\treturn err\n\t}\n\tif c.barrier.Put(ctx, &logical.StorageEntry{\n\t\tKey:   fmt.\n\nSource: https://github.com/hashicorp/vault/issues/31960"
+  },
+  {
+    "id": "oss-hashicorp-vault-31939",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31939",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31939] v2.0.0 does not redirect links with /secrets to /secrets-engines when sub-paths are used\n\nThe UI redirect for the legacy /secrets path only works for the bare /secrets route, but does not handle cases where users attempt to access a legacy secrets engine sub-path such as /secrets/some-backend/kv/.... This means deep links or bookmarks to legacy secrets URLs do n\nSteps to reproduce the behavior:\n1. Navigate to a legacy secrets deep link, e.g.:\n   https://vault/ui/vault/secrets/kv-store/kv/deployments%2Ftest%2Fusers%2Fjohn/details\n2. Observe that the redirect does not occur, and the page fails to load.\n\n**Expected behavior**\nAll legacy URL\n\nSource: https://github.com/hashicorp/vault/issues/31939"
+  },
+  {
+    "id": "oss-hashicorp-vault-31836",
+    "category": "Vault / Auth",
+    "source_url": "https://github.com/hashicorp/vault/issues/31836",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31836] Login Authentication Failed WebUI (Page Reload)\n\nWhen you freshly created a new dedicated vault, the login in the webui is broken under circumstances.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Create a new dedicated vault\n2. Login with the default credentials (admin token) and create a new \"userpass\" authentication \nSteps to reproduce the behavior:\n1. Create a new dedicated vault\n2. Login with the default credentials (admin token) and create a new \"userpass\" authentication along with the proper credentials\n3. Now logout with your admin and login with the new user created, everything is fine\n\nSource: https://github.com/hashicorp/vault/issues/31836"
+  },
+  {
+    "id": "oss-hashicorp-vault-31823",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31823",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31823] 1.21.4 released but https://github.com/hashicorp/vault/blob/main/CHANGELOG.md does not match.\n\nfailure to document changes in a release in the CHANGELOG.md\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. read CHANGELOG.md\n2. compare with https://developer.hashicorp.com/vault/install version currently being released.\n3. See value from #2 is > value from #1\n\n**Expected\nSteps to reproduce the behavior:\n1. read CHANGELOG.md\n2. compare with https://developer.hashicorp.com/vault/install version currently being released.\n3. See value from #2 is > value from #1\n\n**Expected behavior**\nDocument changes when they are released.\n\n**Environment:**\n* all\n\nV\n\nSource: https://github.com/hashicorp/vault/issues/31823"
+  },
+  {
+    "id": "oss-hashicorp-vault-31917",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31917",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31917] Vault PKI issue intermittently returns RSA-2048 private keys rejected by OpenSSL 3 FIPS; sign with fixed CSR is stable\n\n1. Create a temporary PKI mount and minimal RSA role\n```\nvault secrets enable -path=\"pki-rsa-repro\" pki\nvault secrets tune -max-lease-ttl=87600h \"pki-rsa-repro\"\n\nvault write \"pki-rsa-repro/root/generate/internal\" \\\n  common_name=\"Temp RSA Repro Root\" \\\n  issuer_name=\"temp-root\" \\\nVault PKI issue intermittently returns RSA private keys that OpenSSL FIPS rejects.\n\nSource: https://github.com/hashicorp/vault/issues/31917"
+  },
+  {
+    "id": "oss-hashicorp-vault-31851",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31851",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31851] Error \"Response returned an error code\" during enable or configure kubernetes access method (v1.21.4)\n\nIn web UI, when I am logged in using local user (which has admin police attached) and click the \"configure\" of kubernetes access method configuration, the error \"Response returned an error code\" appeared. There is no such problem, when I'm logged in using root token. Same error a\nSteps to reproduce the behavior:\n1. Create local user using \"userpass\" access method\n2. Loging using local user\n3. Try to enable new kubernetes access method or configure existing one.\n\n**Additional context**\nVault version 1.21.4\n\nSource: https://github.com/hashicorp/vault/issues/31851"
+  },
+  {
+    "id": "oss-hashicorp-vault-31796",
+    "category": "Vault",
+    "source_url": "https://github.com/hashicorp/vault/issues/31796",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31796] ACME new-nonce endpoint: Replay-Nonce header set in handler but missing from HTTP response\n\nThe ACME new-nonce endpoint (GET/HEAD) does not return the Replay-Nonce header to the client, even though the PKI handler sets it in the logical response. As a result, RFC 8555–compliant ACME clients that obtain the initial nonce via HEAD/GET to the newNonce URL (e.g. acme.sh\n1. Configure Vault PKI with ACME enabled and a role (e.g. acme-internal) with EAB.\n2. From any host that can reach Vault (including from inside the Vault pod), request the new-nonce URL:\n\n   **GET:**\n   ``bash\n   curl -sI \"http://127.0.0.\n\nSource: https://github.com/hashicorp/vault/issues/31796"
+  },
+  {
+    "id": "oss-hashicorp-vault-31628",
+    "category": "Vault / Networking",
+    "source_url": "https://github.com/hashicorp/vault/issues/31628",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #31628] Connection fails to DB backends that have trailing dot in the SAN field of TLS certificate\n\nWe have a DB backend that uses TLS and has a server certificate with a trailing dot in the SAN field of the certificate. The latest version of Vault fails to connect to that server with the following error : `error creating database object: error verifying connection: ping failed\nSteps to reproduce the behavior:\n1. Create a connection to a DB backend that has a trailing dot in the SAN field of its TLS certificate.\n    - We see this kind of certificate on the CloudSQL instances of S3NS, a french cloud provider based on GCP.\n2. See the error when Vault trie\n\nSource: https://github.com/hashicorp/vault/issues/31628"
+  },
+  {
+    "id": "oss-hashicorp-vault-18648",
+    "category": "Vault / Auth",
+    "source_url": "https://github.com/hashicorp/vault/issues/18648",
+    "source_repo": "hashicorp/vault",
+    "text": "[hashicorp/vault #18648] Sudden error when trying to authenticate in Vault UI via OIDC provider\n\nHi,\r\n\r\nI’m suddenly having a OIDC login issue in the UI after weeks of normal operation with Vault 1.12.2. \r\n\r\nI click on “Sign in with OIDC provider”, and almost immediately the main window shows “Error: The provider window was closed before authentication was complete. Please click Sign In to try again.”. \r\nThen even though authentication to the OIDC identity provider (within the pop-up window) is successful, the pop-up shows message \"Error: Cannot read properties of null (reading 'postMessage')\", and Vault does not follow-through with the flow.\n\nSource: https://github.com/hashicorp/vault/issues/18648"
+  },
+  {
+    "id": "oss-grafana-grafana-127400",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/127400",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #127400] Dynamic Dashboards: Conditional rendering bug - hidden rows take up space\n\nWhen I set a row to hide, and the hide condition is met, there is reserved space where the row was created\n\nSource: https://github.com/grafana/grafana/issues/127400"
+  },
+  {
+    "id": "oss-grafana-grafana-123110",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/123110",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #123110] Elasticsearch datasources broken after upgrade to grafana 13.0.1\n\nAfter the update to grafana 13.0.1, all our preconfigured elasticsearch datasources are broken, showing Data source not found in the UI. If I look at the underlying requests, there is a request to /api/plugins/elasticsearch/settings which returns `{ message: \"Plugin not found\n### Is the bug inside a dashboard panel?\n\n_No response_\n\nSource: https://github.com/grafana/grafana/issues/123110"
+  },
+  {
+    "id": "oss-grafana-grafana-99974",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/99974",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #99974] DataSourcePicker: Selected datasource does not always show up as selected\n\nSometimes there is no orange bar next to the data source that was selected. It seems like it depends on the datasource option. It seems to render an orange bar only when the datasource's uid matches its name, but not otherwise. \n\nhttps://github.com/user-attachments/assets/a34\n\nSource: https://github.com/grafana/grafana/issues/99974"
+  },
+  {
+    "id": "oss-grafana-grafana-118179",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/118179",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #118179] `dashboardNewLayouts` scroll bugs\n\ndashboardNewLayouts moves the scroll container from the body to an inner element. this:\n- breaks keyboard scrolling (up/down arrow to scroll page)\n- breaks full page screenshots\n- prevents the url bar hiding on mobile browsers\n\nSource: https://github.com/grafana/grafana/issues/118179"
+  },
+  {
+    "id": "oss-grafana-grafana-126909",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/126909",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #126909] Grafana v13: MySQL database bug\n\nMy current setup is Grafana V12 running on an Ubuntu Server 24.04 using a MySQL 8.0 as database.\n\nI'm moving to docker container for Grafana V13. \n\nFirst thing i configured a docker compose with Grafana V12 + MySQL 8.0, did a MySQL Dump from original database and imported in the\n\nSource: https://github.com/grafana/grafana/issues/126909"
+  },
+  {
+    "id": "oss-grafana-grafana-104982",
+    "category": "Grafana / Auth",
+    "source_url": "https://github.com/grafana/grafana/issues/104982",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #104982] Product Area: Generic Oauth integration with Grafana\n\nWe are having trouble logging in with Grafana using Generic Oauth.  In Grafana's previous version 10.2.2, we had no problems logging in with Auth0.  Following the most recent Grafana upgrade, additional modifications were made to the Generic Oauth integration.  When we specified\n\nSource: https://github.com/grafana/grafana/issues/104982"
+  },
+  {
+    "id": "oss-grafana-grafana-103705",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/103705",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #103705] Multi-Select Variables: Can't remove specific variable when window is expanded\n\nTried to remove specific item from multi-select variable when the window is expanded - but the item isn't clickable.\nIt works just when the window is collapsed. \nIt is annoying when there are a lot of items. Thus, the desired item is hidden until we expand the variable window.\n\n!\n\nSource: https://github.com/grafana/grafana/issues/103705"
+  },
+  {
+    "id": "oss-grafana-grafana-102282",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/102282",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #102282] Alerting: Grafana sends extreme amount of retries on Teams Webhook Failure causing system instability\n\nI have a grafana set-up with multiple notification channels (Mainly Teams Webhooks, external webhooks or opsgenie)\n\nDuring the night seems like one of the webhook has failed, and this interminnent failure has caused a wave of retries that have saturated the instance and led to it\n\nSource: https://github.com/grafana/grafana/issues/102282"
+  },
+  {
+    "id": "oss-grafana-grafana-97219",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/97219",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #97219] Variable: ALL option always highlight\n\nALL option always highlight\n\nSource: https://github.com/grafana/grafana/issues/97219"
+  },
+  {
+    "id": "oss-grafana-grafana-96537",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/96537",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #96537] Dashboards: repeated rows get mixed up\n\nSince upgrading to 11.3.0, when multiple definitions of repeated rows are used on the same dashboard, the generated rows may get mixed up with other rows instead of being repeated consecutively. The generated rows may mix between any other rows, seemingly random.\n\n![Image](https:\n\nSource: https://github.com/grafana/grafana/issues/96537"
+  },
+  {
+    "id": "oss-grafana-grafana-127289",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/127289",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #127289] Product Area: grafana-oss 13.0.3 release missing from hub.docker.com\n\nAttempting to upgrade from Docker image to grafana-oss:13.0.3 resulted in missing image error.\n\nhttps://hub.docker.com/r/grafana/grafana-oss/tags?name=13.0.3\n<img width=\"1108\" height=\"809\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6300db77-c1ba-422d-83f1-6d688\n\nSource: https://github.com/grafana/grafana/issues/127289"
+  },
+  {
+    "id": "oss-grafana-grafana-116736",
+    "category": "Grafana",
+    "source_url": "https://github.com/grafana/grafana/issues/116736",
+    "source_repo": "grafana/grafana",
+    "text": "[grafana/grafana #116736] Dashboards: Share link breaks for repeated Library Panels (viewPanel=<repeatValue>$panel-<id>) → Panel not found (Grafana 12.3.1)\n\nWhen using Share → Share link on a Library Panel with Repeat enabled, the generated URL consistently results in a “Panel not found” error.\n\nThis issue:\n\t•\tOnly occurs when Repeat is enabled\n\t•\tOnly affects Library Panels\n\t•\tDoes not occur for regular (non-library) panels\n\t•\tIs no\n\nSource: https://github.com/grafana/grafana/issues/116736"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-127056",
+    "category": "Kubernetes / Crash",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/127056",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #127056] Panic when comparing two interface.\n\nWhen I used ArgoCD, I found this line will result in panic if two compared values are map[string]interface. The call was initiated from [here](https://g\n\nSource: https://github.com/kubernetes/kubernetes/issues/127056"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-140087",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/140087",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #140087] DRA: Reusing pending claim allocation in PodGroup bypasses node selector check\n\nWhen two pods in a PodGroup share a ResourceClaim, the dra scheduler plugin reuses the in-memory pendingAllocation created during the Reserve phase of the first pod (pod0).\nHowever, during PreFilter when reusing pendingAllocation\nhttps://github.com/kubernetes/kubernetes\n\nSource: https://github.com/kubernetes/kubernetes/issues/140087"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-137984",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/137984",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #137984] Eviction signal is not hugepages aware\n\nOn nodes with hugepages configured, the kubelet's memory.available eviction signal overstates real available regular memory by the total hugepage reservation. This causes eviction to fire later than the configured threshold intends, causing OOM kills.\n\nThe root cause is that Avai\n\nSource: https://github.com/kubernetes/kubernetes/issues/137984"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-120348",
+    "category": "Kubernetes / Storage",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/120348",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #120348] Inability to receive WatchBookmarks from the etcd storage implementation\n\nIn general, clients can request WatchBookmark events by specifying the allowWatchBookmarks query parameter. However, the server is not obliged to deliver any WatchBookmark events, as described in https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/\n\nSource: https://github.com/kubernetes/kubernetes/issues/120348"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-135566",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/135566",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #135566] [BUG] Issue with k8s.io/apimachinery v0.34.2 and k8s.io/client-go v0.34.2\n\nWhen I launch a debug with vscode it failed, but that does not occur with v0.34.1 versions.\n```\nStarting: /Users/go/bin/dlv dap --listen=127.0.0.1:57222 --log-dest=3 from /Users/data/src/test/k8s\nDAP server listening at: 127.0.0.1:57222\nBuild Error: go build -o /Users/data/src/\n\nSource: https://github.com/kubernetes/kubernetes/issues/135566"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-7547",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/7547",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #7547] kubectl delete|get `all foo` should delete the aliased resources named 'foo'\n\nresource.Builder should allow all/foo and all foo since both are unambiguous.  Not super high priority, but makes delete all annoying when you want to delete several things that are named the same.\n\nSource: https://github.com/kubernetes/kubernetes/issues/7547"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-133810",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/133810",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #133810] client can run into infinite loop when watch ends with  too old resource version\n\nScenario\n1.  Test client built with pod reflector/informer，connected to apiserver A, with last sync rv 100\n2.  k/v related to pod has been compacted in etcd, to rv 110\n3.  another apiserver B restarts,  later it has pod watchcatch sync with oldest rv 110\n4.  Apiserver A restarts,\n\nSource: https://github.com/kubernetes/kubernetes/issues/133810"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-136275",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/136275",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #136275] Node Log Query: unexpected result when disabled\n\nIf the feature gate and kubelet config for https://kubernetes.io/docs/concepts/cluster-administration/system-logs/#log-query  are disabled, I don't get an error for the query. Instead it returns\n\n     \\n\\n<pre\n\nSource: https://github.com/kubernetes/kubernetes/issues/136275"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-136723",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/136723",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #136723] The Binding API does not validate node names, which can cause a pod with a finalizer to be stuck in deletion\n\nIf a pod is created with a custom scheduler and a finalizer, and then bound through the Binding API to a node whose name contains uppercase characters, the API server accepts the request and set the node name to the invalid name.\nThe pod subsequently becomes stuck and cannot be d\n\nSource: https://github.com/kubernetes/kubernetes/issues/136723"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-139283",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/139283",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #139283] HTTP/TCP probes with unresolved named port return Unknown and hide root cause (\"port not found\")\n\nFor HTTP/TCP liveness/readiness/startup probes, port can be intstr.IntOrString.\n\nIn ResolveContainerPort does:\n- try findPortByName for intstr.String\n- if not fou\n\nSource: https://github.com/kubernetes/kubernetes/issues/139283"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-128544",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/128544",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #128544] Warnings on missing pull secrets can be confusing\n\nA previous enhancement has added a warning event when a pull secret is missing: https://github.com/kubernetes/kubernetes/pull/117927\r\n\r\nIf the image has pulled successfully because either another pull secret did the job, or the image doesn't need auth, the warning is distracting.\n\nSource: https://github.com/kubernetes/kubernetes/issues/128544"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-140031",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/140031",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #140031] [FG:InPlacePodVerticalScalingExclusiveCPUs]:When enabling the `InPlacePodVerticalScalingExclusiveCPUs` feature with the CPU Manager policy set to `static`, it is not possible to adjust the CPU size.\n\nI'm using Kubernetes v1.34.5 with the InPlacePodVerticalScalingExclusiveCPUs feature enabled and the following POD YAML:\n`\napiVersion: v1\nkind: Pod\nmetadata:\n  name: resize-demo-test\n  namespace: aistudio\nspec:\n  containers:\n  - name: stress\n    image: stressxxx\n    imagePullPoli\n\nSource: https://github.com/kubernetes/kubernetes/issues/140031"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-136556",
+    "category": "Kubernetes",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/136556",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #136556] After the node reboots, many pods enter the ContainerStatusUnknown state\n\nAfter a node reboot, many pods managed by the Deployment enter the ContainerStatusUnknown state across the cluster.\n\nSource: https://github.com/kubernetes/kubernetes/issues/136556"
+  },
+  {
+    "id": "oss-kubernetes-kubernetes-111899",
+    "category": "Kubernetes / Clustering",
+    "source_url": "https://github.com/kubernetes/kubernetes/issues/111899",
+    "source_repo": "kubernetes/kubernetes",
+    "text": "[kubernetes/kubernetes #111899] Relinquish leadership during zonal outage\n\nA kubernetes cluster deployed in AWS is subject to occasional zonal outages. In the most kubernetes cluster setup usecases(e.g kops), all control plane components(e.g kube-apiserver, kube-scheduler, kube-controller-manager)\n\nSource: https://github.com/kubernetes/kubernetes/issues/111899"
+  },
+  {
+    "id": "oss-grafana-loki-18792",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/18792",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #18792] Burst should be higher than limit in Medium size\n\nhttps://github.com/grafana/loki/blob/eeaf75a09770c576812c59d456fbe705acc434ec/operator/internal/manifests/internal/sizes.go#L572-L573\n\nIngestionBurstSize should probably be 66?\n\nSource: https://github.com/grafana/loki/issues/18792"
+  },
+  {
+    "id": "oss-grafana-loki-21739",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/21739",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #21739] CA configuration is not respected in operator\n\nI have installed Loki via Operator. We use a internal CA for our S3 storage and I could not configure the operator to use it.\nI noticed that there are two different flags for setting the S3 CA, so I tried the other one. That seemed to make it work.\nBecause it seems like such a si\nSteps to reproduce the behavior:\n1. Apply the below manifests\n2. Observe that the compactor pod is failing with the error tls: failed to verify certificate: x509: certificate signed by unknown authority\n3. Manually edit the compactor StatefulSet. Change the command line arg fro\n\nSource: https://github.com/grafana/loki/issues/21739"
+  },
+  {
+    "id": "oss-grafana-loki-21736",
+    "category": "Loki / Crash",
+    "source_url": "https://github.com/grafana/loki/issues/21736",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #21736] TSDB shipper / compactor crash on parse EOF should retry-with-redownload, not fail-stop\n\n## Symptom\n\nWhen the TSDB shipper or compactor encounters a truncated downloaded index file, it logs failed to initialize table, cleaning it up and the process exits, putting the pod in CrashLoopBackOff:\n\n[snippet]\n\nOr the compactor variant:\n\n[snippet]\n\nThe \"cleaning it up\" message is misleading — it tears down the partial in-memory state but does NOT trigger a re-fetch of the file from S3. The pod-level emptyDir cache survives container restarts, so the truncated file persists across crashloop attempts and the loop never breaks until an operator manually deletes the pod.\n\nSource: https://github.com/grafana/loki/issues/21736"
+  },
+  {
+    "id": "oss-grafana-loki-21791",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/21791",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #21791] OpenStack Swift / S3: failed to flush, aws-chunked is not supported\n\nLogs are not saved into OpenStack Swift using S3 compatible API endpoint.\nCan be similar to #21624 as I used v3.6.7 in another cluster and it worked but not sure.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Started Loki 3.7.1\n2. Started Grafana Alloy v1.16.0\n3. Use any \nSteps to reproduce the behavior:\n1. Started Loki 3.7.1\n2. Started Grafana Alloy v1.16.0\n3. Use any query command on Grafana to get logs from Loki\n\n**Expected behavior**\nLogs should go to Swift as expected.\n\n**Environment:**\n - Infrastructure: Docker Swarm\n - Deployment tool: Ansi\n\nSource: https://github.com/grafana/loki/issues/21791"
+  },
+  {
+    "id": "oss-grafana-loki-21027",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/21027",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #21027] Bug: Loki 3.6.5 Readiness Fails (503) When Accessing From Internal Container\n\nLoki 3.6.5 intermittently returns 503 on the /ready endpoint during startup when deployed in Kubernetes (single-binary mode with -target=all).\n\n- Pod starts successfully  \n- No restarts  \n- Readiness probe fails with HTTP 503  \n- External access works  \n- Internal access from wit\n1. Started Loki docker.io/grafana/loki:3.6.5\n   -config.file=/etc/loki/config/config.yaml\n   -target=all\n\n2. (Promtail not required — readiness fails before ingestion)\n\n3. Access readiness endpoint:\n   GET http://:3100/ready\n\nResult:\n   HTTP 503\n\nKubernetes readiness prob\n\nSource: https://github.com/grafana/loki/issues/21027"
+  },
+  {
+    "id": "oss-grafana-loki-20088",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/20088",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #20088] 3.6 [Bug] S3 Object Lock requires Content-MD5 or x-amz-checksum- HTTP header for uploads\n\nSteps to reproduce the behavior:\n1. Provision an AWS S3 bucket with Object Lock enabled (this must be done at the time of bucket creation).\n\n2. Configure Loki (e.g., using the aws S3 client) to use this Object Lock enabled bucket for chunk storage or index storage.\n\n3. Start Loki\n\nSource: https://github.com/grafana/loki/issues/20088"
+  },
+  {
+    "id": "oss-grafana-loki-18788",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/18788",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #18788] loki-gateway nginx.conf template has typos in log format template\n\nnginx.conf  log_format directive that produces logs for loki-gateway do not follow common nginx practices for logging by reversing fields \"status\" and \"request\" and putting **two** spaces between \"[$time_local]  $status\".\n\nAs a result special alloy config required to properly parse and extract values.\nsee:\nhttps://github.com/grafana/loki/blob/4d49ee13da10e479fd6d6c27cc4597ac3c7477b4/production/docker/config/nginx.conf#L11\n\nproposal: move to default nginx access log format \"combined\". same data, standard format.\n\nSource: https://github.com/grafana/loki/issues/18788"
+  },
+  {
+    "id": "oss-grafana-loki-17277",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/17277",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #17277] Automatic stream sharding is disabled with empty overrides\n\nIf an empty mapping is specified for overrides (i.e. overrides: {}) in overrides.yaml, automatic stream sharding is wrongly disabled.\n\nAdditional information:\n- Jsonnet deployment (production/ksonnet/loki) generates such manifest by default.\n- If -limits.per-user-override-co\n1. Started Loki (I'm using v3.4.2) with -limits.per-user-override-config=overrides.yaml, where overrides.yaml contains overrides: {}\n    - Check the distributors' metrics. loki_rate_store_max_stream_rate_bytes`, which has meaningful value and is updated by time if automatic\n\nSource: https://github.com/grafana/loki/issues/17277"
+  },
+  {
+    "id": "oss-grafana-loki-7024",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/7024",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #7024] Loki with S3 not able to push chunks on S3 bucket with compactor error \"NoSuchKeys\"\n\nDear Team,\r\n\r\nIssue details:\r\nI'm trying to setup Loki for our IOT setup on AWS. This does not include Kubernates just logging of Broker service. Broker and Loki are running on two different instances in same VPC. When Loki is running, I can see the logs in grafana But only for around 2 Hours. Not more than that. In S3 bucket I can see there are only two folders, fake and index. I feel chunk folder should also be present to store past logs. On logs I can see compactor is throwing an error \"NoSuchKeys\".\n\nSource: https://github.com/grafana/loki/issues/7024"
+  },
+  {
+    "id": "oss-grafana-loki-6759",
+    "category": "Loki",
+    "source_url": "https://github.com/grafana/loki/issues/6759",
+    "source_repo": "grafana/loki",
+    "text": "[grafana/loki #6759] Flaky test `TestDoubleRegistration`\n\nThe test TestDoubleRegistration fails every once in a while when running in CI, e.g. happened in https://drone.grafana.net/grafana/loki/14249/2/5\r\n\r\n```\r\npanic: Log in goroutine after TestDoubleRegistration has completed: Failed to serve: grpc: the server has been stopped\r\n\r\ngo\n\nSource: https://github.com/grafana/loki/issues/6759"
+  },
+  {
+    "id": "oss-containerd-containerd-13611",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13611",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13611] double up of image config envs on import checkpoint\n\n### Describe the results you received and expected\n\nsee report\n\nSource: https://github.com/containerd/containerd/issues/13611"
+  },
+  {
+    "id": "oss-containerd-containerd-13599",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13599",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13599] CreateContainer CRI API should be rejected on stopped sandbox\n\n1. Run https://github.com/kubernetes-sigs/cri-tools/pull/2126\n2. Test must pass without spec dicrepancy\n\nSource: https://github.com/containerd/containerd/issues/13599"
+  },
+  {
+    "id": "oss-containerd-containerd-6694",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/6694",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #6694] Windows rootfs.size-gb label is not expanding volume to specified size\n\n1. Label k8s containerd namespace:\r\n```\r\n> ctr ns ls \r\nNAME   LABELS\r\nk8s.io \r\n> ctr ns label k8s.io containerd.io/snapshot/io.microsoft.container.storage.rootfs.size-gb=100\r\n> ctr ns ls \r\nNAME   LABELS\r\nk8s.io containerd.io/snapshot/io.microsoft.container.storage.rootfs.size-gb=\n\nSource: https://github.com/containerd/containerd/issues/6694"
+  },
+  {
+    "id": "oss-containerd-containerd-13609",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13609",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13609] containerd fatal on restart\n\n1. On a node with an NRI plugin that rejects RunPodSandbox under certain conditions, create a pod that triggers the NRI rejection\n2. Since StartSandbox has already created a container in bolt DB before the NRI hook, and the deferred cleanup does not delete it, a stale container r\n\nSource: https://github.com/containerd/containerd/issues/13609"
+  },
+  {
+    "id": "oss-containerd-containerd-13582",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13582",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13582] github.com/containerd/containerd/v2 v2.3.0 and later raise min go to 1.26, \"burning\" N,N-1 support contracts in downstream module consumers\n\n### Description\n\nI'm using github.com/containerd/containerd/v2 in several downstream projects, primarily in github.com/thediveo/whalewatcher which then is used in further downstream projects, not least github.com/siemens/edgeshark. These modules and applications track containerd workloads, enabling putting Linux-kernel elements such as for virtual communication into the context of specific workload containers.\n\nIn the process of upgrading dependencies I noticed that v2.3.0 of github.com/containerd/containerd raises the minimum Go version from 1.25.x to 1.26.x.\n\nSource: https://github.com/containerd/containerd/issues/13582"
+  },
+  {
+    "id": "oss-containerd-containerd-13355",
+    "category": "Containerd / Memory",
+    "source_url": "https://github.com/containerd/containerd/issues/13355",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13355] When NRI plugin fails on RunPodSandbox, containerd leaks resources\n\nThe test for NRI failure leads to a leaked resource. Found while working on https://github.com/kubernetes-sigs/cri-tools/issues/2046\n\nFrom AI:\n\n  Root cause: Between StartSandbox succeeding (line 299) and the NRI RunPodSandbox hook (line 346), there is no defer to stop the sandbox/shim on failure.\n\nSource: https://github.com/containerd/containerd/issues/13355"
+  },
+  {
+    "id": "oss-containerd-containerd-12683",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/12683",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #12683] [Go 1.24] v2.2.0 fails to create containers from images having /etc/{passwd,group} symlinked to an absolute path\n\nTry to run ctr containers create docker.io/nixos/nix:2.32.2 nixos-2-32-2 on Ubuntu 24.04 with containerd v2.2.0 installed.\nIn that container image /etc/passwd is a symlink into /nix/store/.\n\n```console\nroot@debug-containerd-220:~# uname -a\nLinux debug-containerd-220 6.8.0-4\n\nSource: https://github.com/containerd/containerd/issues/12683"
+  },
+  {
+    "id": "oss-containerd-containerd-13494",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13494",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13494] ctr -n k8s.io  i import images  can't been seen when use crictl images on  containerd 1.7\n\n1.ctr -n k8s.io  i import python.tar\n\nSource: https://github.com/containerd/containerd/issues/13494"
+  },
+  {
+    "id": "oss-containerd-containerd-13486",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13486",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13486] AlmaLinux CI fails to start: `Error: Unable to find a match: kernel-modules-extra-6.12.0-124.56.5.el10_1.x86_64`\n\nObserved in https://github.com/containerd/containerd/pull/13483\nhttps://github.com/containerd/containerd/actions/runs/26492653115/job/78034472556?pr=13483\n\n[snippet]\n\nSource: https://github.com/containerd/containerd/issues/13486"
+  },
+  {
+    "id": "oss-containerd-containerd-13463",
+    "category": "Containerd",
+    "source_url": "https://github.com/containerd/containerd/issues/13463",
+    "source_repo": "containerd/containerd",
+    "text": "[containerd/containerd #13463] release-20260520.0: runsc gofer fails rootfs self-bind when bundle path uses /var/run symlink to /run\n\nSandbox creation fails before the gofer writes mounts to the boot process. The boot process then reports an empty mounts JSON error.\n\n  ## Workaround\n\n  Pinning back to release-20260511.0 avoids the issue.\n\n  Another possible workaround may be ensuring containerd/runsc consistent\n\nSource: https://github.com/containerd/containerd/issues/13463"
+  },
+  {
+    "id": "oss-cilium-cilium-46357",
+    "category": "Cilium / Performance",
+    "source_url": "https://github.com/cilium/cilium/issues/46357",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #46357] bgp LoadBalancer DSR mode causes extreme latency (733ms) for cross-node HTTP short connections; switching to SNAT restores performance (8ms)\n\nBug description\n\nWe observed severe performance degradation when using Cilium LoadBalancer in DSR mode for HTTP short connections forwarded to Pods on non-local nodes. After switching from DSR to SNAT mode, latency dropped from 733ms to 8ms and QPS recovered proportionally. Long\n\nSource: https://github.com/cilium/cilium/issues/46357"
+  },
+  {
+    "id": "oss-cilium-cilium-38570",
+    "category": "Cilium / Crash",
+    "source_url": "https://github.com/cilium/cilium/issues/38570",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #38570] Panic when removing CLRP with ipv6 frontend\n\nThe cilium-agent crashes when removing an address matcher type CLRP with an ipv6 frontend. \n\nskipLBMap.bpfMap6 is not initialized when ipv6 is disabled(code),\n\nSource: https://github.com/cilium/cilium/issues/38570"
+  },
+  {
+    "id": "oss-cilium-cilium-46274",
+    "category": "Cilium",
+    "source_url": "https://github.com/cilium/cilium/issues/46274",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #46274] IPv6 L2 Announcements unreachable behind Proxmox Linux bridge with multicast snooping\n\nIPv6 LoadBalancer VIPs managed by Cilium L2 Announcements were unreachable when running behind a Proxmox Linux bridge with multicast_snooping=1.\n\nThe lease holder was correctly elected and the VIP was present in the IPv6 L2 responder map. The solicited-node multicast MAC addres\n\nSource: https://github.com/cilium/cilium/issues/46274"
+  },
+  {
+    "id": "oss-cilium-cilium-46598",
+    "category": "Cilium",
+    "source_url": "https://github.com/cilium/cilium/issues/46598",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #46598] Cilium CNI IP allocation failure - all CIDR ranges exhausted\n\nCilium CNI IP allocation failure - all CIDR ranges exhausted\n   - Error: unable to allocate IP via local cilium agent: POST /ipam502 postIpamFailure \"all CIDR ranges are exhausted\"\n\nSource: https://github.com/cilium/cilium/issues/46598"
+  },
+  {
+    "id": "oss-cilium-cilium-34990",
+    "category": "Cilium / Clustering",
+    "source_url": "https://github.com/cilium/cilium/issues/34990",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #34990] Cilium-Agent bootstrap time varies significantly on empty cluster\n\nI've been playing with spinning up 400 node cluster with Cilium on the main branch. \r\nI've noticed quite a significant variance of bootstrap time - based on bootstrap \"overall\" metric. \r\nWith a bit of more logging added, I was able to pin point it to \"Creating host endpoint\":\r\nhttps://github.com/cilium/cilium/blob/b1317f3ef1266d1f380e1e3bd7e0626a9316df6b/daemon/cmd/daemon_main.go#L1877\r\n\r\nIn a \"good\" bootstrap latency, it doesn't block and exits instantly. \r\nIn a \"worse\" bootstrap latency case, it can take up to 15s. \r\nBoth nodes are totally fresh nodes joining cluster.\n\nSource: https://github.com/cilium/cilium/issues/34990"
+  },
+  {
+    "id": "oss-cilium-cilium-46687",
+    "category": "Cilium",
+    "source_url": "https://github.com/cilium/cilium/issues/46687",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #46687] WireGuard node-encryption: per-peer silent RX drop on one node pair; survives key regen, only fixed by recreating cilium_wg0\n\n> **Version note:** observed on **1.19.3**. The required Version dropdown does not list 1.19.3, so the nearest listed range is selected. We reviewed the 1.19.4 and 1.19.5 changelogs: the only WireGuard changes are MTU (#45940) and iptables packet-matching (#45974), neither of whi\n\nSource: https://github.com/cilium/cilium/issues/46687"
+  },
+  {
+    "id": "oss-cilium-cilium-46337",
+    "category": "Cilium",
+    "source_url": "https://github.com/cilium/cilium/issues/46337",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #46337] BIG TCP IPv4: GSO/GRO setup fails on VXLAN with high-tso_max_size NICs (mlx5) on kernel 6.12\n\nafter updating from 1.18.10 to 1.19.4 we saw that it was failing to setup the vxlan device. in version 1.19.2 there is a flag that exists that allows us to enable/disable the tunnel, which defaults to false (disabling the tunnel). This option is removed in 1.19.4 and is now probi\n\nSource: https://github.com/cilium/cilium/issues/46337"
+  },
+  {
+    "id": "oss-cilium-cilium-45761",
+    "category": "Cilium / Networking",
+    "source_url": "https://github.com/cilium/cilium/issues/45761",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #45761] Hubble: policy correlation missing for CiliumNetworkPolicy with port ranges (endPort)\n\nWhen a CiliumNetworkPolicy uses a port range via endPort, Hubble fails to correlate the policy verdict back to the originating policy. The Hubble flow egress_allowed_by / ingress_allowed_by fields are not populated even though datapath matched the policy to allow the unde\n1. Create a kind cluster and install Cilium with Hubble:\n\n```bash\nhelm install cilium ./install/kubernetes/cilium --namespace kube-system \\\n    --set hubble.enabled=true \\\n    --set hubble.relay.enabled=true\nkubectl -n kube-system wait --for=condition=ready pod -l app.kubernetes.\n\nSource: https://github.com/cilium/cilium/issues/45761"
+  },
+  {
+    "id": "oss-cilium-cilium-42786",
+    "category": "Cilium / Networking",
+    "source_url": "https://github.com/cilium/cilium/issues/42786",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #42786] Gateway API with Host Network: Gateway stays PROGRAMMED: False\n\nI want to create a k8s (lab singlenode) cluster with gateway API in host network mode, https://docs.cilium.io/en/latest/network/servicemesh/gateway-api/gateway-api/#host-network-mode \n\nThe underlying k8s is a kubeadm-created 1.34.2 with pretty much standard / default options, on\n\nSource: https://github.com/cilium/cilium/issues/42786"
+  },
+  {
+    "id": "oss-cilium-cilium-32371",
+    "category": "Cilium / Networking",
+    "source_url": "https://github.com/cilium/cilium/issues/32371",
+    "source_repo": "cilium/cilium",
+    "text": "[cilium/cilium #32371] Gateway API: TLSRoutes erroneously attaching to HTTPS-listeners\n\nFollowing up on #32292 with @youngnick.\r\n\r\nCreating the following Gateway resource with a HTTPS-listener\r\n\r\n```yaml\r\napiVersion: gateway.networking.k8s.io/v1\r\nkind: Gateway\r\nmetadata:\r\n  name: test\r\n  namespace: test\r\nspec:\r\n  gatewayClassName: cilium\r\n  listeners:\r\n    - proto\n\nSource: https://github.com/cilium/cilium/issues/32371"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8901",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8901",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8901] [Bug]: [mcp] get_services and get_span_names truncate silently\n\nget_services and get_span_names cap their results at 100 (defaultServiceLimit /\ndefaultSpanNameLimit) and return the trimmed slice with no indication that anything was cut.\nThe output structs don't carry a total or a truncated flag, so the caller can't tell whether it\ngot\n1. Run Jaeger v2 with jaeger_mcp + jaeger_query, any backend.\n2. Ingest traces for >100 services.\n3. Call get_services with default args.\n4. Exactly 100 come back, nothing says there are more.\n\nSource: https://github.com/jaegertracing/jaeger/issues/8901"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8824",
+    "category": "Jaeger / Clustering",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8824",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8824] [Bug]: Leader election Close() does not forfeit the distributed lock\n\nWhen a Jaeger instance that is the adaptive sampling leader shuts down gracefully (e.g., during a rolling restart), it does not release its leader lock. The lock remains in Cassandra until it expires on its own. During that time, no other Jaeger instance can become the leader, so\n1) Run two instances with adaptive sampling + Cassandra \n\n2) Verify Instance A holds the lock: SELECT name, owner, TTL(owner) FROM jaeger_v1_dc1.leases;\n\n3) Gracefully stop Instance A (Ctrl+C / SIGINT)\n\n4) Immediately check: SELECT name, owner, TTL(owner) FROM jaeger_v1_dc1.lease\n\nSource: https://github.com/jaegertracing/jaeger/issues/8824"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8805",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8805",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8805] [Bug]: get_critical_path MCP tool returns a spurious error for valid traces with an empty critical path\n\nComputeCriticalPathFromTraces in cmd/jaeger/internal/extension/jaegermcp/internal/criticalpath/criticalpath.go treats an **empty** critical path as a failure:\n\n[snippet]go\nfunc TestEmptyCriticalPathShouldNotError(t *testing.T) {\n    tr := ptrace.NewTraces()\n    s := tr.ResourceSpans().AppendEmpty().ScopeSpans().AppendEmpty().Spans().AppendEmpty()\n    s.SetSpanID(pcommon.SpanID{1}\n\nSource: https://github.com/jaegertracing/jaeger/issues/8805"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8851",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8851",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8851] bug(jaegermcp): MCP server goroutine has no WaitGroup — Shutdown returns before goroutine exits\n\nThe jaegermcp extension starts an HTTP server goroutine in Start() with no \nlifecycle synchronization. Shutdown() calls httpServer.Shutdown(ctx) but \nreturns immediately without waiting for the goroutine to finish, creating \na race condition where the process can exit while the g\n1. Start Jaeger with the jaegermcp extension enabled\n2. Send a shutdown signal\n3. The process exits while the MCP server goroutine may still be running\n\nSource: https://github.com/jaegertracing/jaeger/issues/8851"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8843",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8843",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8843] [Bug]: get_span_details MCP tool accepts and processes malformed span_id values without validation\n\nWhat happened?\nThe get_span_details MCP tool in the JaegerMCP extension does not validate the format of individual span_id strings provided in the span_ids input array. A valid OpenTelemetry Span ID must be exactly 16 hexadecimal characters (representing 8 bytes), but the h\n1. Start Jaeger with the MCP extension enabled.\n2. Call the get_span_details MCP tool with a valid trace_id but with one or more malformed span_id values:\n[snippet]\n3. Observe\n\nSource: https://github.com/jaegertracing/jaeger/issues/8843"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8829",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8829",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8829] [Bug]: tracing with opensearch backend does not work with ilm policy\n\nI have configured Jaeger as a trace storage with Opensearch backend. I am using ilm policy to index management. \n\nI configured the jaeger-ilm-policy and ran the es-rollover init script with use_aliases:true  and use_ilm:true. \n\nBut the rollover step of the policy failed with \nFollowed steps from here: https://www.jaegertracing.io/docs/2.19/storage/elasticsearch/#ilm-support\n\n1.setup jaeger-ilm-policy in OS cluster\n`{\n    \"id\": \"jaeger-ilm-policy\",\n    \"seqNo\": 2275,\n    \"primaryTerm\": 1,\n    \"policy\": {\n        \"policy_id\": \"jaeger-ilm-policy\",\n\nSource: https://github.com/jaegertracing/jaeger/issues/8829"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8741",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8741",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8741] [Bug]: Missing mock expectations in v1adapter depreader tests allow false positives\n\nAs a Jaeger contributor,\nI want test mocks to correctly enforce their expectations,\nso that broken production code immediately fails the tests instead of passing silently.\nWhile reviewing test coverage in internal/storage/v2/v1adapter/depreader_test.go, I noticed that mock expe\n1. Run the test normally on the main branch to see it pass: go test -v ./internal/storage/v2/v1adapter -run TestDependencyReader_GetDependencies\n2. Sabotage the production logic in internal/storage/v2/v1adapter/depreader.go by commenting out the call to the underlying reade\n\nSource: https://github.com/jaegertracing/jaeger/issues/8741"
+  },
+  {
+    "id": "oss-jaegertracing-jaeger-8798",
+    "category": "Jaeger",
+    "source_url": "https://github.com/jaegertracing/jaeger/issues/8798",
+    "source_repo": "jaegertracing/jaeger",
+    "text": "[jaegertracing/jaeger #8798] Fix OKE demo deploy with Helm 4\n\n## Problem\n\nAfter #8797 fixed the all-in-one snapshot image publish, the manual OKE demo deploy still fails during the Helm upgrade step.\n\nFailed run: https://github.com/jaegertracing/jaeger/actions/runs/27698433713\n\nThe run used the new merged snapshot images successfully:\n\n- jaegertracing/jaeger-snapshot:11b08c08b216d03e52f1d8df04f071ddf57091c3\n- jaegertracing/example-hotrod-snapshot:11b08c08b216d03e52f1d8df04f071ddf57091c3\n\nThe deploy failed after azure/setup-helm installed Helm v4.2.\n\nSource: https://github.com/jaegertracing/jaeger/issues/8798"
+  },
+  {
+    "id": "oss-nats-io-nats-server-1789",
+    "category": "Nats-Server",
+    "source_url": "https://github.com/nats-io/nats-server/issues/1789",
+    "source_repo": "nats-io/nats-server",
+    "text": "[nats-io/nats-server #1789] account cycle check broken when renaming subjects\n\nunit test to demonstrate issue\r\n\r\n[snippet]\n\nSource: https://github.com/nats-io/nats-server/issues/1789"
+  },
+  {
+    "id": "oss-nats-io-nats-server-4707",
+    "category": "Nats-Server / Clustering",
+    "source_url": "https://github.com/nats-io/nats-server/issues/4707",
+    "source_repo": "nats-io/nats-server",
+    "text": "[nats-io/nats-server #4707] Different behavior between single node and clustered nats-servers regarding 'DeliverLastPerSubjectPolicy' with multiple subjects.\n\nHard to tell. I would be grateful for ideas on what could be the culprit and how to test what may be the problem here. A wild guess of mine would be, that the storage on the cluster is not created new as the test system and was created some month ago.\r\n\r\nWhen I change the subject\n\nSource: https://github.com/nats-io/nats-server/issues/4707"
+  },
+  {
+    "id": "oss-nats-io-nats-server-4529",
+    "category": "Nats-Server / Crash",
+    "source_url": "https://github.com/nats-io/nats-server/issues/4529",
+    "source_repo": "nats-io/nats-server",
+    "text": "[nats-io/nats-server #4529] Panic in recalculateFirstForSubj\n\nhttps://github.com/nats-io/nats-server/commit/8865c2a703886356769bcbf877546010b79c3523\r\nMaybe this caused the out of bounds access\r\n\r\n```\r\n[1] 2023/09/13 15:35:12.278427 [DBG] JETSTREAM - JetStream connection closed: Client Closed\r\npanic: runtime error: slice bounds out of range\n\nSource: https://github.com/nats-io/nats-server/issues/4529"
+  },
+  {
+    "id": "oss-nats-io-nats-server-432",
+    "category": "Nats-Server / Performance",
+    "source_url": "https://github.com/nats-io/nats-server/issues/432",
+    "source_repo": "nats-io/nats-server",
+    "text": "[nats-io/nats-server #432] Authorization Timeout and TLS\n\nWhen TLS and authorization is enabled, the authorization timeout can fire during the TLS handshake, causing the server to write the authorization timeout error string into the client socket, injecting what becomes bad data into the TLS handshake.  This creates misleading errors on the client such as tls: oversized record received with length 21024.\r\n\r\nI've only seen this happen when the host machine is under very heavy load with many clients simultaneously connecting, causing the server to become CPU bound.\n\nSource: https://github.com/nats-io/nats-server/issues/432"
+  },
+  {
+    "id": "oss-nats-io-nats-server-5",
+    "category": "Nats-Server",
+    "source_url": "https://github.com/nats-io/nats-server/issues/5",
+    "source_repo": "nats-io/nats-server",
+    "text": "[nats-io/nats-server #5] gnatsd HTTP monitoring has some issues\n\nFirst, gnatsd takes a parameter to use as the HTTP monitoring port, however it doesn't actually use the passed parameter.  The port is hardcoded to 6062.\n\nSecond, gnatsd always starts the HTTP server, but only registers the handlers for the server if the monitoring port is specified.  The goroutine to launch the HTTP monitoring should be moved within the if statement to see if a monitoring port was specified.\n\nSource: https://github.com/nats-io/nats-server/issues/5"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-171566",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/171566",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #171566] kv/kvserver: TestLeasesDontThrashWhenNodeBecomesSuspect failed\n\nkv/kvserver.TestLeasesDontThrashWhenNodeBecomesSuspect failed with artifacts on master @ b581fafd373fa257054beb556e81d762327fa2ba:\n\n[snippet]\nHelp\n\nSee also: How To Investigate a Go Test Failure \\(internal\\)\n\n/cc @cockroachdb/kv-triage\n\nThis test on roachdash | Improve this report!\n\nJira issue: CRDB-64687\n\nSource: https://github.com/cockroachdb/cockroach/issues/171566"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-171596",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/171596",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #171596] Wrong result: partitioned query returns duplicate row while equivalent query does not\n\n```sql\nCREATE TABLE t0 (c0 BIT(2) AS (B'10') STORED UNIQUE, c1 BIT(2), CONSTRAINT \"pk\" PRIMARY KEY(c0, c1));\nCREATE TABLE t1 (c0 SERIAL8);\n\nUPSERT INTO t1 (rowid) VALUES(-2);\nINSERT INTO t0 (c1) VALUES(B'10');\n\n-- Query partition\n(\n    SELECT t1.rowid, t0.c0\n    FROM t0, t1\n    W\n\nSource: https://github.com/cockroachdb/cockroach/issues/171596"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-169804",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/169804",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #169804] sql/opt: optimizer estimates non-zero cardinality and zero distinct values\n\npkg/ccl/testccl/workload/schemachange/schemachange_test.TestWorkloadMultiRegion failed with artifacts on master @ aae64ba72a3851821cf4a42e110e3776210e21f5:\n\n[snippet]\nHelp\n\nSee also: How To Investigate a Go Test Failure \\(internal\\)\n\n/cc @cockroachdb/sql-foundations\n\nThis test on roachdash | Improve this report!\n\nJira issue: CRDB-63662\n\nSource: https://github.com/cockroachdb/cockroach/issues/169804"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-172030",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/172030",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #172030] sql/pgwire: re-binding a prepared EXPLAIN ANALYZE (DEBUG) errors after memo invalidation\n\nPrepared EXPLAIN ANALYZE over the extended protocol erroring with \"EXPLAIN ANALYZE can only be used as a top-level statement\" after the cached memo is invalidated. Regression introduced in v26.2, the following test would pass in V26.1.\n\n[snippet]\n\nThe error was reached via https://github.com/cockroachdb/cockroach/blob/8ee72ef292bda505db680c36abe8653e70b5f02b/pkg/sql/opt/optbuilder/builder.go#L461\n\nJira issue: CRDB-65172\n\nSource: https://github.com/cockroachdb/cockroach/issues/172030"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-170668",
+    "category": "Cockroach / Storage",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/170668",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #170668] sql: `TestLogic_distinct_on` is flaky under the `fakedist-disk` config.\n\n[snippet]\n\nSource: https://github.com/cockroachdb/cockroach/issues/170668"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-168648",
+    "category": "Cockroach / Crash",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/168648",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #168648] Sentry: panic by pausable portal via EXPLAIN ANALYZE\n\nThis issue was auto filed by Sentry. It represents a crash or reported error on a live cluster with telemetry enabled.\n\nSentry Link: https://cockroach-labs.sentry.io/issues/7423291985/?referrer=webhooks_plugin\n\nPanic Message:\n\n[snippet]\n\nStacktrace (expand for inline code snippets):\n\nsrc/runtime/asm_amd64.s#L1694-L1696\npkg/sql/pgwire/server.go#L1195-L1197\npkg/sql/pgwire/conn.go#L250-L252\npkg/sql/conn_executor.go#L970-L972\npkg/sql/conn_executor.go#L2270-L2272\npkg/sql/conn_executor.go#L2505-L2507\npkg/sql/conn_executor_exec.go#L3197-L3199\npkg/sql/conn_executor_exec.\n\nSource: https://github.com/cockroachdb/cockroach/issues/168648"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-172066",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/172066",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #172066] Sentry: create_table.go:107: invalid schema kind for getNonTemporarySchemaForCreate: ×\n(1)\nWraps: (2) assertion failure\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/cockroachdb/co...\n\nThis issue was auto filed by Sentry. It represents a crash or reported error on a live cluster with telemetry enabled.\n\nSentry Link: https://cockroach-labs.sentry.io/issues/7580297815/?referrer=webhooks_plugin\n\nPanic Message:\n\n[snippet]\n\nStacktrace (expand for inline code snippets):\n\npkg/sql/pgwire/server.go#L1196-L1198\npkg/sql/pgwire/conn.go#L251-L253\npkg/sql/conn_executor.go#L999-L1001\npkg/sql/conn_executor.go#L2303-L2305\npkg/sql/conn_executor.go#L2386-L2388\npkg/sql/conn_executor.go#L2381-L2383\npkg/sql/conn_executor_exec.go#L162-L164\npkg/sql/conn_executor_exec.\n\nSource: https://github.com/cockroachdb/cockroach/issues/172066"
+  },
+  {
+    "id": "oss-cockroachdb-cockroach-172067",
+    "category": "Cockroach",
+    "source_url": "https://github.com/cockroachdb/cockroach/issues/172067",
+    "source_repo": "cockroachdb/cockroach",
+    "text": "[cockroachdb/cockroach #172067] Sentry: create_table.go:107: invalid schema kind for getNonTemporarySchemaForCreate: ×\n(1)\nWraps: (2) assertion failure\nWraps: (3) attached stack trace\n  -- stack trace:\n  | github.com/cockroachdb/co...\n\nThis issue was auto filed by Sentry. It represents a crash or reported error on a live cluster with telemetry enabled.\n\nSentry Link: https://cockroach-labs.sentry.io/issues/7580297851/?referrer=webhooks_plugin\n\nPanic Message:\n\n[snippet]\n\nStacktrace (expand for inline code snippets):\n\nsrc/runtime/asm_amd64.s#L1694-L1696\npkg/sql/pgwire/server.go#L1196-L1198\npkg/sql/pgwire/conn.go#L251-L253\npkg/sql/conn_executor.go#L999-L1001\npkg/sql/conn_executor.go#L2303-L2305\npkg/sql/conn_executor.go#L2386-L2388\npkg/sql/conn_executor.go#L2381-L2383\npkg/sql/conn_executor_exec.\n\nSource: https://github.com/cockroachdb/cockroach/issues/172067"
+  },
+  {
+    "id": "oss-vitessio-vitess-19261",
+    "category": "Vitess / Replication",
+    "source_url": "https://github.com/vitessio/vitess/issues/19261",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #19261] Bug Report: `EmergencyReparentShard` fails in GTID shard with any file-based replicas\n\n### Overview of the Issue\n\nIf a shard with GTID-based tablets also contains one or more file-based tablets, EmergencyReparentShard will fail with: \"encountered mix of GTID-based and non GTID-based relay logs\", leaving unplanned failures of the PRIMARY un-actioned. This can lead to an indefinite outage a human _(or clever external automation)_ must manually respond to 👎 \n\nDesired outcome: if we are certain the file-based replica is NOT a semi-sync acker _(shouldn't be, but theoretically possible)_, we should prioritize promoting a GTID-based replica vs. fail outright.\n\nSource: https://github.com/vitessio/vitess/issues/19261"
+  },
+  {
+    "id": "oss-vitessio-vitess-20362",
+    "category": "Vitess",
+    "source_url": "https://github.com/vitessio/vitess/issues/20362",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20362] Bug Report: VTOrc keeps stale `database_instance.hostname` on probe failure\n\n### Overview of the Issue\n\nWhen a tablet's MysqlHostname changes in topo _(eg: pod rescheduled to a new IP)_ AND the MySQL probe at the new address fails, VTOrc never updates database_instance.hostname — the row keeps pointing at the **previous** address indefinitely. The analyser then flags the tablet as InvalidReplica _(not actionable)_, so VTOrc neither corrects the row nor recovers it\n\nThis happens because ReadTopologyInstanceBufferable _(go/vt/vtorc/inst/instance_dao.go:385-405)_ only calls WriteInstance _(full REPLACE INTO)_ on probe success.\n\nSource: https://github.com/vitessio/vitess/issues/20362"
+  },
+  {
+    "id": "oss-vitessio-vitess-20371",
+    "category": "Vitess / Memory",
+    "source_url": "https://github.com/vitessio/vitess/issues/20371",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20371] StreamExecute (OLAP) bypasses stored-procedure safety checks: multi-resultset and transaction-leaking CALLs are silently accepted\n\n### Overview of the Issue\n\nStreamExecute (the OLAP / streaming query path) bypasses the stored-procedure safety checks that the buffered Execute path enforces. As a result, two classes of CALL that Execute rejects are silently accepted when run through StreamExecute:\n\n1. **Multi-resultset procedures return truncated results with no error.** A procedure that produces more than one resultset is rejected by Execute with Multi-Resultset not supported in stored procedure. Through StreamExecute it returns **only the first resultset and err == nil** — the caller silently gets partial/wrong data.\n\n2.\n\nSource: https://github.com/vitessio/vitess/issues/20371"
+  },
+  {
+    "id": "oss-vitessio-vitess-20412",
+    "category": "Vitess",
+    "source_url": "https://github.com/vitessio/vitess/issues/20412",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20412] grpctmclient: a failed dedicated-pool dial is cached permanently and never redials after the peer recovers\n\n1. Trigger a pooled dial (e.g. via CheckThrottler) for a tablet under a condition that makes the initial createTmc return an error (for instance, the call's context is cancelled/deadlined during the dial).\n2. Restore normal conditions for that tablet.\n3. Call again — the cach\n\nSource: https://github.com/vitessio/vitess/issues/20412"
+  },
+  {
+    "id": "oss-vitessio-vitess-20360",
+    "category": "Vitess / Crash",
+    "source_url": "https://github.com/vitessio/vitess/issues/20360",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20360] Bug Report: vReplication vplayer panics in `applyBulkDeleteChanges` — downstream symptom of upstream invariant violation\n\n### Overview of the Issue\n\n**Scope:** This issue tracks the downstream vttablet panic in applyBulkDeleteChanges. There are at least two distinct problems in play — (1) the loop bug below that turns a malformed RowChange into a process crash, and (2) the upstream invariant violation that produces a RowChange.Before with empty Lengths in the first place. Problem (2) is **not yet identified**.\n\nSource: https://github.com/vitessio/vitess/issues/20360"
+  },
+  {
+    "id": "oss-vitessio-vitess-20394",
+    "category": "Vitess",
+    "source_url": "https://github.com/vitessio/vitess/issues/20394",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20394] Task: Remove antithesis workflows and related code\n\n### Overview of the Issue\n\nUnfortunately the relationship that we had with Antithesis has ended, our infra has been decommissioned on their side, and the workflows simply fail.\n\n### Reproduction Steps\n\nSample failures from recent commits to main:\n  - https://github.com/vitessio/vitess/actions/runs/28114834241/job/83251451224\n  - https://github.com/vitessio/vitess/actions/runs/28114834226/job/83251451419\n\n### Binary Version\n\n[snippet]\n\n### Operating System and Environment details\n\n[snippet]\n\n### Log Fragments\n\n[snippet]\n\nSource: https://github.com/vitessio/vitess/issues/20394"
+  },
+  {
+    "id": "oss-vitessio-vitess-20365",
+    "category": "Vitess",
+    "source_url": "https://github.com/vitessio/vitess/issues/20365",
+    "source_repo": "vitessio/vitess",
+    "text": "[vitessio/vitess #20365] Bug Report: field-metadata (impossible) queries drop SET_VAR hints, causing spurious only_full_group_by (1055) and other session-setting mismatches\n\n### Overview of the Issue\n\nFor each Route, vtgate builds two SQL strings: the main Query, and a *field query* (an \"impossible query\" of the form select ... where 1 != 1) used to fetch column metadata from a tablet without returning rows.\n\nThe main query is serialized with the statement's comments, which include the /*+ SET_VAR(...) */ optimizer hints vtgate uses to propagate session system variables — most importantly sql_mode — down to MySQL. The field query, produced by FormatImpossibleQuery (go/vt/sqlparser/impossible_query.go), **drops those comments entirely**.\n\nSource: https://github.com/vitessio/vitess/issues/20365"
+  },
+  {
+    "id": "oss-longhorn-longhorn-13420",
+    "category": "Longhorn / Crash",
+    "source_url": "https://github.com/longhorn/longhorn/issues/13420",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #13420] [BUG] Longhorn volume engine crashed  on openeuler aarch64\n\n-------- pvc error log: \nWarning  DetachedUnexpectedly  10s (x10 over 7m3s)  longhorn-volume-controller         Engine of volume pvc-1e03ba75-7b0c-43de-8f56-215f9ddf700d dead unexpectedly, setting v.Status.Robustness to faulted\n\n------------  instance-manager  errorlog:\ner).WaitF\n\nSource: https://github.com/longhorn/longhorn/issues/13420"
+  },
+  {
+    "id": "oss-longhorn-longhorn-13109",
+    "category": "Longhorn",
+    "source_url": "https://github.com/longhorn/longhorn/issues/13109",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #13109] [BUG] Migration Engine Can Be Unexpectedly Deleted If the Target Node Is Still in Readiness Transition\n\nLonghorn can start the migration engine process on the target node shortly after the node reboots.\n\nDuring the node readiness/manager transition window, Longhorn may delete that engine process if it finds that the node is not ready yet. \n\nSince the new engine may still have activ\nPlease refer to harvester/harvester#10285 and SURE-10998.\n\nSource: https://github.com/longhorn/longhorn/issues/13109"
+  },
+  {
+    "id": "oss-longhorn-longhorn-6487",
+    "category": "Longhorn / Clustering",
+    "source_url": "https://github.com/longhorn/longhorn/issues/6487",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #6487] [BUG] Cannot delete a down status node after this node was deleted in k3s cluster\n\nwhile I deleted directly a node in k3s cluster without doing drain/cordon this node , this node show \"down\" status, but I cannot delete this node in longhorn UI, and get errors: \r\nadmission webhook \"validator.longhorn.io\" denied the request: spec and status of disks on node onpre\n1. create a k3s cluster with 3 nodes\r\n2. install longhorn with version 1.4.0,and create some volume with longhorn storage class\r\n3. delete directly one node from k3s cluster without doing drain/cordon this node\r\n4. then in longhorn ui, this node show \"down\" status, \r\n5. cannot de\n\nSource: https://github.com/longhorn/longhorn/issues/6487"
+  },
+  {
+    "id": "oss-longhorn-longhorn-13416",
+    "category": "Longhorn",
+    "source_url": "https://github.com/longhorn/longhorn/issues/13416",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #13416] [BUG] Recurring trim job fails with deadlock\n\nThe filesystem-trim recurring job consistently deadlocks when processing any number of volumes.\n```\n   time=\"2026-06-28T15:10:54.449017767Z\" level=info msg=\"Found 23 volumes with recurring job cleanup-trim\" func=recurringjob.StartVolumeJobs file=\"volume.go:51\"\n   fatal error: a\n1. Have a filesystem-trim recurring job assigned to any group (including default) with attached volumes\n2. Trigger the job — either wait for the cron schedule or create a manual Job using the same spec as the recurring job\n3. After ~2 minutes the job pod crashes with fatal error:\n\nSource: https://github.com/longhorn/longhorn/issues/13416"
+  },
+  {
+    "id": "oss-longhorn-longhorn-11860",
+    "category": "Longhorn / Storage",
+    "source_url": "https://github.com/longhorn/longhorn/issues/11860",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #11860] [BUG] Unable to re-add block-type disks by BDF after re-enable v2 data engine\n\n1. Enable v2 data engine\n2. Add a block-type disk by BDF, and wait it to become Schedulable:\n\n3. Delete the block-type disk, and disable v2 data\n\nSource: https://github.com/longhorn/longhorn/issues/11860"
+  },
+  {
+    "id": "oss-longhorn-longhorn-13334",
+    "category": "Longhorn",
+    "source_url": "https://github.com/longhorn/longhorn/issues/13334",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #13334] [BUG] volume expansion stuck\n\nI resized a v1 engine volume, the resize seems stuck. Cancelling the expansion does not appear to help in any way, after a few minutes the UI goes back to showing the volume as being expanded.\n\ncsi-resizer logs say:\n\n```plain\nE0613 12:22:10.526995       1 controller.go:330] \"Erro\nUpgrade to Longhorn v1.12.0\nExpand an existing volume from 100Gi to 121Gi\n\nSource: https://github.com/longhorn/longhorn/issues/13334"
+  },
+  {
+    "id": "oss-longhorn-longhorn-10544",
+    "category": "Longhorn",
+    "source_url": "https://github.com/longhorn/longhorn/issues/10544",
+    "source_repo": "longhorn/longhorn",
+    "text": "[longhorn/longhorn #10544] [BUG] pvc resize fails after iscsid restart\n\nGot an error while resizing PVC:\nE0306 10:24:31.733095       1 controller.go:314] \"Error syncing PVC\" err=\"resize volume \\\"pvc-8ff20c7b-6084-4a97-9a79-76c70ff83c4d\\\" by resizer \\\"driver.longhorn.io\\\" failed: rpc error: code = DeadlineExceeded\n\nLHV was updated but PVC was stuck \n1. Restart iscsid service\n2. Resize PVC\n\nSource: https://github.com/longhorn/longhorn/issues/10544"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-28453",
+    "category": "Argo-Cd",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/28453",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #28453] relogin with --argocd-context does not correctly work\n\nwhen argocd's active context differs from the context being requested for a relogin, and a command is issued post login with a --argocd-context specified matching the context for the context that just got its crede\n- [x] I've pasted the output of argocd version.\n\n**Describe the bug**\n\nwhen argocd's active context differs from the context being requested for a relogin, and a command is issued post login with a `--argocd-conte\n\nSource: https://github.com/argoproj/argo-cd/issues/28453"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-28421",
+    "category": "Argo-Cd / Replication",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/28421",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #28421] v3.5.0-rc1: server-side dry-run workaround applies large CRDs client-side, breaking sync with ServerSideApply=true (regression from v3.4.1)\n\n👋 We updated Argo CD from v3.4.1 to v3.5.0-rc1 and noticed a massive improvement in UI loading speed - great work and thanks to everyone involved! Unfortunately we had to roll back as we hit a bug where ServerSideApply is effectively ignored and large CRDs fail to sync. Sam\n- [ ] I've pasted the output of argocd version.\n\n**Describe the bug**\n\n👋 We updated Argo CD from v3.4.1 to v3.5.0-rc1 and noticed a massive improvement in UI loading speed - great work and thanks to everyone involved! Unfortunately we had to roll back as we hit a bug where\n\nSource: https://github.com/argoproj/argo-cd/issues/28421"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-23325",
+    "category": "Argo-Cd / Networking",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/23325",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #23325] ARGO-CD repo connection failed.\n\n🐛 Issue Summary\nWe have deployed Argo CD across three different environments within our AKS cluster. All environments are configured to use the same GitHub repository as the source of truth, which we suspect may be contributing to the issue.\n\n⚠️ Problem\nArgo CD intermittently fai\n* [ x ] I've pasted the output of argocd version.\n\n**Describe the bug**\n🐛 Issue Summary\nWe have deployed Argo CD across three different environments within our AKS cluster. All environments are configured to use the same GitHub repository as the source of truth, which we suspec\n\nSource: https://github.com/argoproj/argo-cd/issues/23325"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-27835",
+    "category": "Argo-Cd",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/27835",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #27835] Source Hydrator errors with \"cannot lock ref\"\n\nSource Hydrator is producing an error message similar to this:\n\n> ! [remote rejected]     refs/notes/hydrator.metadata -> refs/notes/hydrator.metadata (cannot lock ref 'refs/notes/hydrator.metadata': is at 477134654bdd5531fc0f76bf026be86515e8685f but expected 30b2c9044a27f1b853fe\nCreate two Argo CD apps pointing to _different_ destinations and handled by _different Argo CD application controller shards_. \n\n**Expected behavior**\n\nOne Application controller shard should take responsibility for hydrating, and the others should skip.\n\n<!-- If applicable, add\n\nSource: https://github.com/argoproj/argo-cd/issues/27835"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-28393",
+    "category": "Argo-Cd",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/28393",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #28393] CI: avoid overlapping Go cache restores in ci-build.yaml\n\nSeveral jobs in .github/workflows/ci-build.yaml restore the same Go build and module cache directories through two mechanisms:\n\n1. actions/setup-go is used without specifying cache: false, so its built-in cache is enabled by default.\n2. The job then uses actions/cache for\n* [ ] I've pasted the output of argocd version because this is a GitHub Actions workflow configuration issue, not a running Argo CD instance issue.\n\n**Describe the bug**\n\nSeveral jobs in .github/workflows/ci-build.yaml restore the same Go build and module cache directories th\n\nSource: https://github.com/argoproj/argo-cd/issues/28393"
+  },
+  {
+    "id": "oss-argoproj-argo-cd-18232",
+    "category": "Argo-Cd / Replication",
+    "source_url": "https://github.com/argoproj/argo-cd/issues/18232",
+    "source_repo": "argoproj/argo-cd",
+    "text": "[argoproj/argo-cd #18232] PodDisruptionBudget not syncing with RespectIgnoreDifferences flag\n\nWhen syncing an application with out of sync status of object PDB and set RespectIgnoreDifferences flag to true - object remains out of sync with status successfully synced.\r\n\r\n**To Reproduce**\r\n\r\nSync application with PDB object with status out of sync and set RespectIgnoreDiffe\n* [x] I've pasted the output of argocd version.\r\n\r\n**Describe the bug**\r\n\r\nWhen syncing an application with out of sync status of object PDB and set RespectIgnoreDifferences flag to true - object remains out of sync with status successfully synced.\r\n\r\n**To Reproduce**\r\n\r\nSync a\n\nSource: https://github.com/argoproj/argo-cd/issues/18232"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-14587",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/14587",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #14587] ${env:VAR:-} with empty default resolves to nil instead of empty string, causing downstream validation failures\n\n### Component(s)\n\nconfmap\n\n### What happened?\n\n### Description\n\n#### Observed Behavior\n\nWhen using an environment expansion with an empty default:\n\n[snippet]\n\nand VAR is unset, the resulting value resolves to nil instead of an empty string.\n\nThis appears to happen because the envprovider ultimately passes an empty byte slice to NewRetrievedFromYAML, which results in the YAML unmarshaler producing a nil value.\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/14587"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-15386",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/15386",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #15386] [exporter/otlp_http] OTLP export responses exceeding 64kB cause retryable export failures\n\n**Describe the bug**\n\nThe OTLP HTTP exporter fails to parse server responses whose body exceeds maxHTTPResponseReadBytes (64 kB). The failure is logged as:\n\n[snippet]\n\nI think the issue is in readResponseBody (exporter/otlphttpex\nThe following failing test demonstrates the bug (added to exporter/otlphttpexporter/otlp_test.go, generated using Claude Sonnet 4.6):\n\n``go\n// exporter/otlphttpexporter/otlp_test.go\nfunc TestPartialSuccess_responseBodyTooLarge(t *testing.T) {\n    srv := createBackend(\"/v1/metr\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/15386"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-15485",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/15485",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #15485] Shared receiver can start serving before consumers of its   other-signal pipelines are started\n\n**Describe the bug**\n\nIf you share one OTLP receiver across pipelines of different signals (say one otlp receiver feeding traces, logs and metrics), the order in which components start is not deterministic between those pipelines.\nAnd since the OTLP receiver is a sharedcomponen\nI wrote a small test — startorder_race_test.go — that builds a real graph through graph.Build() (one examplereceiver shared by a tra\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/15485"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-15437",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/15437",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #15437] [config/configretry] Config validation skipped if `enabled = false`\n\n**Describe the bug**\n\nCurrent implementation of BackOffConfig.Validate method\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/15437"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-15458",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/15458",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #15458] Remove extra line extended_documentation in documentation.md\n\n**Describe the bug**\nIn the documentation.md the generated content contains a extra white line between the extended_description and status table\n\n**Steps to reproduce**\nWe can see the extra line in all documentation.md that is generated via\n\n[snippet]\n\nExample\nSwitch \nWe can see the extra line in all documentation.md that is generated via\n\n[snippet]\n\nExample\nSwitch to code to view the extra blank line. The preview doesn't show\n\n[exporter/elasticsearchexporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/m\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/15458"
+  },
+  {
+    "id": "oss-open-telemetry-opentelemetry-collector-11341",
+    "category": "Opentelemetry-Collector",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-collector/issues/11341",
+    "source_repo": "open-telemetry/opentelemetry-collector",
+    "text": "[open-telemetry/opentelemetry-collector #11341] [featuregate] Clarify what `ToVersion` represents.\n\nThe featuregate module has 2 different definitions for ToVersion.\r\n\r\nIn the godoc comments ToVersion is defined as // ToVersion returns the version information when Gate's in StageStable..\r\n\r\nBut in the README it is specified as A stable feature gate will be removed in the version specified by its ToVersion value.\r\n\r\nWe should fix whichever one is incorrect.\n\nSource: https://github.com/open-telemetry/opentelemetry-collector/issues/11341"
+  }
+]
