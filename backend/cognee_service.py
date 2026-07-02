@@ -474,12 +474,15 @@ async def recall(symptom: str, animate: bool = True) -> list:
 
     client = _get_client()
     try:
+        # Shorter than the shared 120s client timeout — a slow/degraded graph
+        # should still let the user get a runbook (synthesized from empty
+        # context) well within an interactive wait, not crash after 2 minutes.
         resp = await client.post("/api/v1/recall", json={
             "searchType": "GRAPH_COMPLETION",
             "query": symptom,
             "topK": 10,
             "datasets": [INCIDENTS_DATASET],
-        })
+        }, timeout=45.0)
         resp.raise_for_status()
         results = resp.json()
 
@@ -505,8 +508,12 @@ async def recall(symptom: str, animate: bool = True) -> list:
         return results
 
     except Exception as e:
+        # Degraded/slow Cognee must not crash the request (ASK) or take down
+        # the whole 3-tier COMPARE via asyncio.gather. Fall back to empty
+        # context — runbook_synth still produces a runbook from general
+        # SRE knowledge rather than a 500.
         await emitter.error(f"recall() failed: {str(e)}")
-        raise
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -637,6 +644,9 @@ async def forget(incident_id: str, data_id: str | None = None) -> bool:
 # ---------------------------------------------------------------------------
 
 async def get_patterns() -> list:
+    """Background/sidebar query — fails fast rather than blocking on the shared
+    120s cognify-sized timeout. A degraded or slow graph should not freeze the
+    PatternPanel UI for two minutes; an empty result is a fine fallback."""
     client = _get_client()
     try:
         resp = await client.post("/api/v1/recall", json={
@@ -644,7 +654,7 @@ async def get_patterns() -> list:
             "query": "What are the most common root causes and failure patterns across Redis, Postgres, Nginx, and Kafka incidents in this dataset?",
             "topK": 5,
             "datasets": [INCIDENTS_DATASET],
-        })
+        }, timeout=20.0)
         resp.raise_for_status()
         return resp.json()
     except Exception:
