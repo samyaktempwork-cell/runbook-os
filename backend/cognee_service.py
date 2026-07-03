@@ -513,6 +513,11 @@ async def recall(symptom: str, animate: bool = True) -> list:
         # context — runbook_synth still produces a runbook from general
         # SRE knowledge rather than a 500.
         await emitter.error(f"recall() failed: {str(e)}")
+        # Still emit path_found (even with just the pre-lit seed nodes, or
+        # empty) so the frontend's "Traversing…" banner clears instead of
+        # ticking forever — the HTTP response completes with a fallback
+        # runbook either way.
+        await emitter.path_found(seed_ids)
         return []
 
 

@@ -13,9 +13,11 @@ export default function IncidentTimeline({ refreshTrigger }: Props) {
   const [incidents, setIncidents] = useState<IncidentRecord[]>([])
   const [expanded, setExpanded] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [ragIndexed, setRagIndexed] = useState<number | null>(null)
 
   useEffect(() => {
     api.listIncidents().then(setIncidents).catch(() => {})
+    api.health().then((h) => setRagIndexed(h.rag_indexed)).catch(() => {})
   }, [refreshTrigger])
 
   const handleDelete = async (incident_id: string) => {
@@ -23,6 +25,9 @@ export default function IncidentTimeline({ refreshTrigger }: Props) {
     try {
       await api.deleteIncident(incident_id)
       setIncidents((prev) => prev.filter((i) => i.incident_id !== incident_id))
+      // Local delete doesn't bump the parent's refreshTrigger — refetch here
+      // too, or the "N indexed" counter goes stale after a delete.
+      api.health().then((h) => setRagIndexed(h.rag_indexed)).catch(() => {})
     } finally {
       setDeleting(null)
     }
@@ -34,7 +39,10 @@ export default function IncidentTimeline({ refreshTrigger }: Props) {
         <h2 className="font-mono text-xs font-bold text-slate-700 tracking-widest uppercase">
           Incidents
         </h2>
-        <span className="font-mono text-[10px] text-slate-500">{incidents.length} in memory</span>
+        <span className="font-mono text-[10px] text-slate-500">
+          {incidents.length} in memory
+          {ragIndexed !== null && <> · <span className="text-emerald-600">{ragIndexed} indexed</span></>}
+        </span>
       </div>
 
       <div className="flex-1 overflow-y-auto">
