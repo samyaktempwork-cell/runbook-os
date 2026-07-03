@@ -25,6 +25,9 @@ export default function IncidentTimeline({ refreshTrigger }: Props) {
     try {
       await api.deleteIncident(incident_id)
       setIncidents((prev) => prev.filter((i) => i.incident_id !== incident_id))
+      // Local delete doesn't bump the parent's refreshTrigger — refetch here
+      // too, or the "N indexed" counter goes stale after a delete.
+      api.health().then((h) => setRagIndexed(h.rag_indexed)).catch(() => {})
     } finally {
       setDeleting(null)
     }
