@@ -506,6 +506,27 @@ export default function DashboardPage() {
         firing={simulatingAlert}
       />
 
+      {/* Incident added/removed popup — top right */}
+      <AnimatePresence>
+        {socketState.incidentToast && (
+          <motion.div
+            key={socketState.incidentToast.message}
+            initial={{ opacity: 0, x: 20, y: -8 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+            className={`fixed top-16 right-4 z-50 flex items-center gap-2 px-3.5 py-2 rounded-lg shadow-lg border font-mono text-[10px] font-bold ${
+              socketState.incidentToast.kind === 'added'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                : 'bg-rose-50 border-rose-300 text-rose-700'
+            }`}
+          >
+            <span>{socketState.incidentToast.kind === 'added' ? '✓' : '×'}</span>
+            {socketState.incidentToast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }

@@ -15,6 +15,11 @@ export interface GraphState {
 
 export type LifecycleStage = 'remember' | 'recall' | 'improve' | 'forget' | null
 
+export interface IncidentToast {
+  kind: 'added' | 'removed'
+  message: string
+}
+
 export interface GraphSocketState {
   graphData: GraphState
   animationMode: AnimationMode
@@ -29,6 +34,7 @@ export interface GraphSocketState {
   activeLifecycle: LifecycleStage  // which Cognee API just fired (auto-clears after 2s)
   graphPathReady: boolean     // true after path_found — safe to open RunbookViewer
   traversedCount: number      // live count of nodes scanned (for status strip)
+  incidentToast: IncidentToast | null  // brief popup on incident added/removed
   clearRunbook: () => void
   resetGraph: () => void      // clears all traversal highlights (user-triggered)
 }
@@ -52,6 +58,19 @@ export function useGraphSocket(): GraphSocketState {
   const [graphData, setGraphData] = useState<GraphState>({ nodes: [], links: [] })
   const [graphPathReady, setGraphPathReady] = useState(false)  // true after path_found fires
   const [traversedCount, setTraversedCount] = useState(0)      // live node count during scan
+  const [incidentToast, setIncidentToast] = useState<IncidentToast | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showIncidentToast = useCallback((kind: 'added' | 'removed') => {
+    api.health().then((h) => {
+      const message = kind === 'added'
+        ? `+1 incident added · ${h.incidents} total`
+        : `−1 incident removed · ${h.incidents} total`
+      setIncidentToast({ kind, message })
+      if (toastTimer.current) clearTimeout(toastTimer.current)
+      toastTimer.current = setTimeout(() => setIncidentToast(null), 3500)
+    }).catch(() => {})
+  }, [])
 
   const clearRunbook = useCallback(() => {
     setRunbookSteps([])
@@ -126,6 +145,7 @@ export function useGraphSocket(): GraphSocketState {
 
       case 'remember_complete':
         flashLifecycle('remember')
+        showIncidentToast('added')
         // Reload real Cognee graph after cognify completes — picks up new entities
         setTimeout(() => {
           api.getGraph().then((data) => {
@@ -225,6 +245,7 @@ export function useGraphSocket(): GraphSocketState {
 
       case 'forget_complete':
         flashLifecycle('forget')
+        showIncidentToast('removed')
         // Reload graph from API — deleted incident's nodes may now be absent
         setTimeout(() => {
           api.getGraph().then((data) => {
@@ -314,6 +335,7 @@ export function useGraphSocket(): GraphSocketState {
     activeLifecycle,
     graphPathReady,
     traversedCount,
+    incidentToast,
     clearRunbook,
     resetGraph,
   }
